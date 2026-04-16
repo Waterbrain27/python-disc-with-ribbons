@@ -7,7 +7,7 @@ MIN_INTERVAL_LENGTH = MIN_DELTA * 0.2
 MIN_WIDTH = MIN_INTERVAL_LENGTH
 MAX_WIDTH_RATIO = 0.4
 MAX_ATTEMPTS = 60
-disk_center = (0,0,0)
+disk_center = (0, 0, 0)
 radius = 3.0
 thickness = 0.1
 disk = vedo.Circle(r=radius, res=120).extrude(zshift=thickness)
@@ -15,6 +15,9 @@ disk.c('skyblue').alpha(0.6)
 
 rng = np.random.default_rng()
 
+
+# Функция возвращающая канонический вид дуги по входным параметрам, то есть начало, конец и расстояние в градусах
+# при обходе против часовой стрелки по меньшей дуге
 def canon_arc(angle1, angle2):
     angle1 %= 360
     angle2 %= 360
@@ -24,10 +27,14 @@ def canon_arc(angle1, angle2):
     else:
         return angle2, angle1, 360 - dist
 
+
+# Функция возвращающая расстояние между концами данного интервала (по меньшей дуге) в градусах
 def dist(interval):
     start, end, delta = canon_arc(interval[0], interval[1])
     return delta
 
+
+# Функция позволяющая определить принадлежность данного угла к данному интервалу
 def angle_in_interval(angle, interval):
     a, b = interval
     if a <= b:
@@ -35,19 +42,8 @@ def angle_in_interval(angle, interval):
     else:
         return angle >= a or angle <= b
 
-# def is_arc_free(start, end):
-#     arc_start, arc_end, delta = canon_arc(start, end)
-#     if delta < 1e-6:
-#         return False
-#     for a, b in ribbons_coords:
-#         if a <= b:
-#             if not (arc_end <= a or arc_start >= b):
-#                 return False
-#         else:
-#             if arc_end > a or arc_start < b:
-#                 return False
-#     return True
 
+# Функция возвращающая дугу построенную по входным параметрам
 def create_arc(angle1, angle2, height_change):
     angle1 = np.radians(angle1)
     angle2 = np.radians(angle2)
@@ -64,6 +60,8 @@ def create_arc(angle1, angle2, height_change):
     arc_line = vedo.Arc(center=arc_center, point1=p1, point2=p2, res=50, invert=True)
     return arc_line
 
+
+# Функция возвращающая ленточку заданную входными параметрами
 def create_ribbon(angle1, angle2, width):
     start, end, dist = canon_arc(angle1, angle2)
     if dist < 1e-6:
@@ -82,13 +80,18 @@ def create_ribbon(angle1, angle2, width):
     add_closed_intervals(start, end, width)
     return ribbon, start, end, width
 
+
 all_heights = []
 ribbons = []
 ribbons_coords = []
 
+
+# Функция возвращающая псевдорандомное float число из полуинтервала [start, end)
 def rand_float(start, end):
     return random.random() * (end - start) + start
 
+
+# Функция возвращающая рандомный угол (точку на окружности) принадлежающую данному интервалу
 def rand_angle(interval):
     start = interval[0]
     end = interval[1]
@@ -97,38 +100,9 @@ def rand_angle(interval):
     else:
         return random.choice([rand_float(start, 360.0), rand_float(0.0, end)])
 
+
+# Фукнция возвращающая список свободных интервалов на окружности на основе списка занятых интервалов
 def form_free_room_list(intervals):
-    # normalized = []
-    # for a, b in intervals:
-    #     a = a % 360
-    #     b = b % 360
-    #     if a < b:
-    #         normalized.append([a, b])
-    #     elif a > b:
-    #         normalized.append([a, 360.0])
-    #         normalized.append([0.0, b])
-    # if not normalized:
-    #     return [[0.0, 360.0]]
-    # normalized.sort(key=lambda x: x[0])
-    # merged = [normalized[0]]
-    # for a, b in normalized[1:]:
-    #     if a <= merged[-1][1]:
-    #         merged[-1][1] = max(merged[-1][1], b)
-    #     else:
-    #         merged.append([a, b])
-    # free = []
-    # for i in range(len(merged)):
-    #     cur_end = merged[i][1]
-    #     next_start = merged[(i + 1) % len(merged)][0]
-    #     if i == len(merged) - 1:
-    #         if cur_end < 360:
-    #             free.append([cur_end, 360.0])
-    #         if next_start > 0:
-    #             free.append([0.0, next_start])
-    #     else:
-    #         if cur_end < next_start and next_start - cur_end > MIN_DELTA:
-    #             free.append([cur_end, next_start])
-    # return free
     free_room = []
     for i in range(len(intervals) - 1):
         start, end, dist = canon_arc(intervals[i][1], intervals[i + 1][0])
@@ -140,26 +114,14 @@ def form_free_room_list(intervals):
     return free_room
 
 
+# Функция предназначенная для добавления занятых интервалов в соответствующий список после создания ленточки
 def add_closed_intervals(start, end, width):
     global ribbons_coords
-    # start_start = start
-    # start_end = (start + width) % 360
-    # if start_start < start_end:
-    #     ribbons_coords.append([start_start, start_end])
-    # else:
-    #     ribbons_coords.append([start_start, 360.0])
-    #     ribbons_coords.append([0.0, start_end])
-    # end_start = (end - width) % 360
-    # end_end = end
-    # if end_start < end_end:
-    #     ribbons_coords.append([end_start, end_end])
-    # else:
-    #     ribbons_coords.append([end_start, 360.0])
-    #     ribbons_coords.append([0.0, end_end])
     ribbons_coords.append([start, (start + width) % 360])
     ribbons_coords.append([(end - width) % 360, end])
     ribbons_coords = sorted(ribbons_coords, key=lambda x: x[0])
 
+# Функция создающая ленточку с псевдорандомными параметрами
 def generate_random_ribbon():
     global ribbons_coords
     sector = None
@@ -193,8 +155,6 @@ def generate_random_ribbon():
             angle1 = rand_angle(sector1)
             angle2 = rand_angle(sector2)
             start, end, delta = canon_arc(angle1, angle2)
-            # if not is_arc_free(start, end):
-            #     continue
             if delta < MIN_DELTA:
                 continue
             if angle_in_interval(start, sector1):
@@ -232,8 +192,9 @@ def generate_random_ribbon():
 
 
 create_ribbon(20, 170, 10)
-
+# Окно в котором всё отображается
 plt = vedo.Plotter(title="Диск с ленточками", size=(800, 500))
+
 
 def add_random_ribbon(*args):
     old_count = len(ribbons)
@@ -245,6 +206,8 @@ def add_random_ribbon(*args):
         plt.add(ribbons[-1])
         plt.render()
 
+
+# Кнопка позволяющая заспавнить ленточку имеющую рандомные параметры
 plt.add_button(
     add_random_ribbon,
     pos=(0.5, 0.05),
@@ -255,10 +218,13 @@ plt.add_button(
     size=16,
 )
 
+
 def show_free_room(*args):
     print('-----------------------------------')
     print(form_free_room_list(ribbons_coords))
 
+
+# Кнопка позволяющая вывести список свободных интервалов на окружности (требовалась для дебага)
 plt.add_button(
     show_free_room,
     pos=(0.7, 0.05),
@@ -275,6 +241,8 @@ plt.add(vedo.Rectangle((0, -0.05), (1, 0.05), res=12, c="red", alpha=1).extrude(
 input_text = "Hello, world!"
 text_display = vedo.Text2D(input_text, pos="top-left", font="Courier")
 
+
+# Функция для обработки ввода с клавиатуры
 def keyboard_events(event):
     global input_text
     key = event.keypress

@@ -18,14 +18,15 @@ class Application:
 
     def init(self):
         self.renderer.add_drawable(self.disc)
-        # Демо-ленточка
-        ribbon = self.factory.create_ribbon(20, 170, 10, twist=0, radius=self.disc_radius, thickness=0)
-        self.renderer.add_drawable(ribbon)
+        # # Демо-ленточка
+        # ribbon = self.factory.create_ribbon(20, 170, 10, twist=0, radius=self.disc_radius, thickness=0)
+        # self.renderer.add_drawable(ribbon)
 
         self.renderer.add_button(self.add_random_ribbon, "Добавить ленточку", position=(0.5, 0.05))
         # self._update_topology_display()
 
     def add_random_ribbon(self, *args):
+        print(self.interval_manager.occupied)
         new_ribbon = self.ribbon_gen.generate_random_ribbon(self.interval_manager)
         if new_ribbon:
             self.renderer.add_drawable(new_ribbon)

@@ -8,8 +8,7 @@ disk_center = (0,0,0)
 class Ribbon(IDrawable):
     def __init__(self, angle1: float, angle2: float, width: float, twist: int = 0,
                  radius: float = 3.0, thickness: float = 0.0):
-        self._angle1 = angle1 % 360
-        self._angle2 = angle2 % 360
+        self._start_angle, self._end_angle, self._delta = canon_arc(angle1, angle2)
         self._width = width
         self._twist = twist
         self.radius = radius
@@ -22,7 +21,7 @@ class Ribbon(IDrawable):
     def _build(self):
         print("Ribbon._build() started")
         try:
-            start, end, dist = canon_arc(self.angle1, self.angle2)
+            start, end, dist = canon_arc(self.start_angle, self.end_angle)
             if dist < 1e-6:
                 print("You can't attach two edges to one point!")
                 return
@@ -33,15 +32,15 @@ class Ribbon(IDrawable):
             inner_end = (end - self.width) % 360
             inner_arc = self._create_arc(inner_start, inner_end, height_change * (1 - 2 * ratio))
             ribbon_surface = vedo.Ribbon(outer_arc, inner_arc)
-            if ribbon_surface is None:
-                print("ribbon_surface is None")
-                return
+            # if ribbon_surface is None:
+            #     print("ribbon_surface is None")
+            #     return
             self._mesh = ribbon_surface.extrude(zshift=self.thickness, res=1)
             self._mesh.c('orange').alpha(0.8)
 
         # Точки на концах
-            p1 = angle_to_point(self._angle1, self.radius)
-            p2 = angle_to_point(self._angle2, self.radius)
+            p1 = angle_to_point(self._start_angle, self.radius)
+            p2 = angle_to_point(self._end_angle, self.radius)
             point1 = vedo.shapes.Sphere(pos=p1, r=0.026, c='red')
             point2 = vedo.shapes.Sphere(pos=p2, r=0.026, c='red')
             self._points = [point1, point2]
@@ -77,22 +76,22 @@ class Ribbon(IDrawable):
     def update_angle(self, end: int, new_angle: float) -> bool:
         """Обновить один конец (0 или 1) и перестроить ленточку."""
         if end == 0:
-            self._angle1 = new_angle % 360
+            self._start_angle = new_angle % 360
         else:
-            self._angle2 = new_angle % 360
+            self._end_angle = new_angle % 360
         # Проверка, что дуга не стала короче ширины
-        _, _, delta = canon_arc(self._angle1, self._angle2)
+        _, _, delta = canon_arc(self._start_angle, self._end_angle)
         if delta < self._width + 1e-6:
             return False
         self._build()
         return True
 
     @property
-    def angle1(self):
-        return self._angle1
+    def start_angle(self):
+        return self._start_angle
     @property
-    def angle2(self):
-        return self._angle2
+    def end_angle(self):
+        return self._end_angle
     @property
     def width(self):
         return self._width

@@ -12,23 +12,30 @@ class RibbonGenerator:
         self.rng = np.random.default_rng()
 
     def generate_random_ribbon(self, interval_manager):
-        free_room = form_free_room_list(interval_manager.occupied)
-        if not free_room:
-            return None
-        sector = None
-        if not free_room:
+        if not interval_manager.occupied:
             for attempt in range(MAX_ATTEMPTS):
                 angle1 = rand_float(0, 360)
                 angle2 = rand_float(0, 360)
-                start, end, delta = canon_arc(angle1, angle2)
+                _, _, delta = canon_arc(angle1, angle2)
                 if delta >= MIN_DELTA:
                     width = rand_float(delta * 0.1, delta * 0.2)
                     return self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
-            print("Не удалось создать первую ленточку")
             return None
 
-        # Possibility to attach a ribbon to two different boundary circles
+        # if not free_room:
+        #     for attempt in range(MAX_ATTEMPTS):
+        #         angle1 = rand_float(0, 360)
+        #         angle2 = rand_float(0, 360)
+        #         start, end, delta = canon_arc(angle1, angle2)
+        #         if delta >= MIN_DELTA:
+        #             width = rand_float(delta * 0.1, delta * 0.2)
+        #             return self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
+        #     print("Не удалось создать первую ленточку")
+        #     return None
 
+
+        free_room = form_free_room_list(interval_manager.occupied)
+        sector = None
         if not free_room:
             print(f"Всё место занято, ленточки некуда ставить!")
             return None
@@ -50,7 +57,7 @@ class RibbonGenerator:
                     start_sector, end_sector = sector1, sector2
                 else:
                     start_sector, end_sector = sector2, sector1
-                max_width = min(dist([start, start_sector[1]]), dist([end_sector[0], end]))
+                max_width = min(dist([start_sector[1], start]), dist([end, end_sector[0]]))
                 width = rand_float(max_width * 0.4, max_width * 0.8)
                 ribbon = self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
                 if ribbon is not None:

@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 from core.geometry import canon_arc
 from core.factory import ObjectFactory
@@ -19,7 +21,8 @@ class RibbonGenerator:
                 _, _, delta = canon_arc(angle1, angle2)
                 if delta >= MIN_DELTA:
                     width = rand_float(delta * 0.1, delta * 0.2)
-                    return self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
+                    twist = random.randint(0, 1)
+                    return self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
             return None
 
         # if not free_room:
@@ -57,9 +60,10 @@ class RibbonGenerator:
                     start_sector, end_sector = sector1, sector2
                 else:
                     start_sector, end_sector = sector2, sector1
-                max_width = min(dist([start_sector[1], start]), dist([end, end_sector[0]]))
+                max_width = min((start_sector[1] - start) % 360, (end - end_sector[0]) % 360)
                 width = rand_float(max_width * 0.4, max_width * 0.8)
-                ribbon = self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
+                twist = random.randint(0, 1)
+                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
                 if ribbon is not None:
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon
@@ -75,7 +79,8 @@ class RibbonGenerator:
                 if delta < MIN_DELTA:
                     continue
                 width = rand_float(delta * 0.1, delta * 0.2)
-                ribbon = self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
+                twist = random.randint(0, 1)
+                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
                 if ribbon is not None:
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon

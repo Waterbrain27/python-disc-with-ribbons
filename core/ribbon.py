@@ -26,11 +26,16 @@ class Ribbon(IDrawable):
                 print("You can't attach two edges to one point!")
                 return
             height_change = rand_float(-0.8, 0.8)
-            outer_arc = self._create_arc(start, end, height_change)
             ratio = self.width / dist
             inner_start = (start + self.width) % 360
             inner_end = (end - self.width) % 360
-            inner_arc = self._create_arc(inner_start, inner_end, height_change * (1 - 2 * ratio))
+            if not self._twist:
+                outer_arc = self._create_arc(start, end, height_change)
+                inner_arc = self._create_arc(inner_start, inner_end, height_change * (1 - 2 * ratio))
+            else:
+                outer_arc = self._create_arc(inner_start, end, height_change)
+                inner_arc = self._create_arc(start, inner_end, height_change * (1 - 2 * ratio))
+
             ribbon_surface = vedo.Ribbon(outer_arc, inner_arc)
             # if ribbon_surface is None:
             #     print("ribbon_surface is None")

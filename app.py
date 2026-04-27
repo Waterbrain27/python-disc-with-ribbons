@@ -29,11 +29,8 @@ class Application:
 
     def init(self):
         self.renderer.add_drawable(self.disc)
-        # # Демо-ленточка
-        # ribbon = self.factory.create_ribbon(20, 170, 10, twist=0, radius=self.disc_radius, thickness=0)
-        # self.renderer.add_drawable(ribbon)
 
-        self.renderer.add_button(self.add_random_ribbon, "Добавить ленточку", position=(0.5, 0.05))
+        self.renderer.add_button(self.add_random_ribbon, "Add a ribbon", position=(0.5, 0.05))
         self.mouse_handler.attach(self.renderer)
         # self._update_topology_display()
 

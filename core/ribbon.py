@@ -7,9 +7,11 @@ disk_center = (0,0,0)
 
 class Ribbon(IDrawable):
     def __init__(self, angle1: float, angle2: float, width: float, twist: int = 0,
-                 radius: float = 3.0, thickness: float = 0.0):
+                 radius: float = 3.0, thickness: float = 0.0, random_height: bool = True, height: float = 0.0):
         self._start_angle, self._end_angle, self._delta = canon_arc(angle1, angle2)
         self._width = width
+        self._height = height
+        self._random_height = random_height
         self._twist = twist
         self.radius = radius
         self.thickness = thickness
@@ -25,21 +27,19 @@ class Ribbon(IDrawable):
             if dist < 1e-6:
                 print("You can't attach two edges to one point!")
                 return
-            height_change = rand_float(-0.8, 0.8)
+            if self._random_height:
+                self._height = rand_float(-0.8, 0.8)
             ratio = self.width / dist
             inner_start = (start + self.width) % 360
             inner_end = (end - self.width) % 360
             if not self._twist:
-                outer_arc = self._create_arc(start, end, height_change)
-                inner_arc = self._create_arc(inner_start, inner_end, height_change * (1 - 2 * ratio))
+                outer_arc = self._create_arc(start, end, self._height)
+                inner_arc = self._create_arc(inner_start, inner_end, self._height * (1 - 2 * ratio))
             else:
-                outer_arc = self._create_arc(inner_start, end, height_change)
-                inner_arc = self._create_arc(start, inner_end, height_change * (1 - 2 * ratio))
+                outer_arc = self._create_arc(inner_start, end, self._height)
+                inner_arc = self._create_arc(start, inner_end, self._height * (1 - 2 * ratio))
 
             ribbon_surface = vedo.Ribbon(outer_arc, inner_arc)
-            # if ribbon_surface is None:
-            #     print("ribbon_surface is None")
-            #     return
             self._mesh = ribbon_surface.extrude(zshift=self.thickness, res=1)
             self._mesh.c('orange').alpha(0.8)
 
@@ -97,7 +97,7 @@ class Ribbon(IDrawable):
         if delta < self._width + 1e-6:
             return None  # дуга слишком короткая
         return Ribbon(new_angle1, new_angle2, self._width, self._twist,
-                      self.radius, self.thickness)
+                      self.radius, self.thickness, False, self._height)
 
     @property
     def start_angle(self):
@@ -111,3 +111,6 @@ class Ribbon(IDrawable):
     @property
     def twist(self):
         return self._twist
+    @property
+    def height(self):
+        return self._height

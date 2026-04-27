@@ -22,20 +22,8 @@ class RibbonGenerator:
                 if delta >= MIN_DELTA:
                     width = rand_float(delta * 0.1, delta * 0.2)
                     twist = random.randint(0, 1)
-                    return self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
+                    return self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness, True)
             return None
-
-        # if not free_room:
-        #     for attempt in range(MAX_ATTEMPTS):
-        #         angle1 = rand_float(0, 360)
-        #         angle2 = rand_float(0, 360)
-        #         start, end, delta = canon_arc(angle1, angle2)
-        #         if delta >= MIN_DELTA:
-        #             width = rand_float(delta * 0.1, delta * 0.2)
-        #             return self.factory.create_ribbon(angle1, angle2, width, 0, self.radius, self.thickness)
-        #     print("Не удалось создать первую ленточку")
-        #     return None
-
 
         free_room = form_free_room_list(ribbon_manager.occupied)
         sector = None
@@ -63,7 +51,7 @@ class RibbonGenerator:
                 max_width = min((start_sector[1] - start) % 360, (end - end_sector[0]) % 360)
                 width = rand_float(max_width * 0.4, max_width * 0.8)
                 twist = random.randint(0, 1)
-                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
+                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness, True)
                 if ribbon is not None:
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon
@@ -80,7 +68,7 @@ class RibbonGenerator:
                     continue
                 width = rand_float(delta * 0.1, delta * 0.2)
                 twist = random.randint(0, 1)
-                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness)
+                ribbon = self.factory.create_ribbon(angle1, angle2, width, twist, self.radius, self.thickness, True)
                 if ribbon is not None:
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon

@@ -8,25 +8,24 @@ class VedoRenderer(IRenderer):
         self._text_actor = None   # для текста топологии
 
     def add_drawable(self, obj):
-        print(f"Добавляем объект: {obj}")  # <-- добавить
         mesh = obj.get_mesh()
-        if mesh is None:
-            print("ОШИБКА: get_mesh() вернул None!")  # <-- добавить
-            return
-        print(f"Меш получен: {mesh}, добавляем в plotter...")  # <-- добавить
-        self.plotter.add(mesh)
-        self.plotter.render()  # <-- убедитесь, что эта строка есть
-        print("Рендер вызван.")  # <-- добавить
+        if mesh is not None:
+            self.plotter.add(mesh)
+            print("Меш добавлен")  # временная отладка
+        if hasattr(obj, 'get_points'):
+            for pt in obj.get_points():
+                self.plotter.add(pt)
+                print(f"Добавлена точка: {pt}")  # отладка
+        self.plotter.render()
 
     def remove_drawable(self, obj):
-        if obj in self._drawables:
-            self._drawables.remove(obj)
         mesh = obj.get_mesh()
         if mesh is not None:
             self.plotter.remove(mesh)
         if hasattr(obj, 'get_points'):
             for pt in obj.get_points():
                 self.plotter.remove(pt)
+        self.plotter.render()
 
     def render(self):
         self.plotter.render()
@@ -47,6 +46,9 @@ class VedoRenderer(IRenderer):
 
     def bind_click(self, callback):
         self.plotter.add_callback("mouse click", callback)
+
+    def bind_right_click(self, callback):
+        self.plotter.add_callback("mouse right click", callback)
 
     def bind_move(self, callback):
         self.plotter.add_callback("mouse move", callback)

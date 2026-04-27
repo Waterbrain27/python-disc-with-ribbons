@@ -91,6 +91,14 @@ class Ribbon(IDrawable):
         self._build()
         return True
 
+    def clone_with_angles(self, new_angle1, new_angle2):
+        """Создаёт новый Ribbon с новыми углами (если дуга допустима)."""
+        _, _, delta = canon_arc(new_angle1, new_angle2)
+        if delta < self._width + 1e-6:
+            return None  # дуга слишком короткая
+        return Ribbon(new_angle1, new_angle2, self._width, self._twist,
+                      self.radius, self.thickness)
+
     @property
     def start_angle(self):
         return self._start_angle

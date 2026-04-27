@@ -13,8 +13,8 @@ class RibbonGenerator:
         self.factory = ObjectFactory()
         self.rng = np.random.default_rng()
 
-    def generate_random_ribbon(self, interval_manager):
-        if not interval_manager.occupied:
+    def generate_random_ribbon(self, ribbon_manager):
+        if not ribbon_manager.occupied:
             for attempt in range(MAX_ATTEMPTS):
                 angle1 = rand_float(0, 360)
                 angle2 = rand_float(0, 360)
@@ -37,7 +37,7 @@ class RibbonGenerator:
         #     return None
 
 
-        free_room = form_free_room_list(interval_manager.occupied)
+        free_room = form_free_room_list(ribbon_manager.occupied)
         sector = None
         if not free_room:
             print(f"Всё место занято, ленточки некуда ставить!")

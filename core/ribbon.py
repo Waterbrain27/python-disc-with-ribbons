@@ -8,7 +8,8 @@ disk_center = (0,0,0)
 class Ribbon(IDrawable):
     def __init__(self, angle1: float, angle2: float, width: float, twist: int = 0,
                  radius: float = 3.0, thickness: float = 0.0, random_height: bool = True, height: float = 0.0):
-        self._start_angle, self._end_angle, self._delta = canon_arc(angle1, angle2)
+        self._start_angle = angle1 % 360
+        self._end_angle = angle2 % 360
         self._width = width
         self._height = height
         self._random_height = random_height
@@ -94,7 +95,7 @@ class Ribbon(IDrawable):
     def clone_with_angles(self, new_angle1, new_angle2):
         """Создаёт новый Ribbon с новыми углами (если дуга допустима)."""
         _, _, delta = canon_arc(new_angle1, new_angle2)
-        if delta < self._width + 1e-6:
+        if delta < self._width * 2 + 1e-6:
             return None  # дуга слишком короткая
         return Ribbon(new_angle1, new_angle2, self._width, self._twist,
                       self.radius, self.thickness, False, self._height)

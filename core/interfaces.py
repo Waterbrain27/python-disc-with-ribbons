@@ -24,7 +24,7 @@ class IRenderer(ABC):
         pass
 
     @abstractmethod
-    def add_button(self, callback, text: str, position: tuple = (0.5, 0.05)) -> None:
+    def bind_key(self, callback) -> None:
         pass
 
     @abstractmethod

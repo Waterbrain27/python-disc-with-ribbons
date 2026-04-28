@@ -1,7 +1,7 @@
 import vedo
 import numpy as np
 from core.interfaces import IDrawable
-from core.geometry import canon_arc, angle_to_point, rand_float
+from core.geometry import canon_arc, angle_to_point, rand_float, angle_in_interval
 
 disk_center = (0,0,0)
 

@@ -33,16 +33,8 @@ class VedoRenderer(IRenderer):
     def show(self):
         self.plotter.show(axes=1, viewup='z', interactive=True)
 
-    def add_button(self, callback, text: str, position=(0.5, 0.05)):
-        self.plotter.add_button(
-            callback,
-            pos=position,
-            states=[text],
-            c="orange",
-            bc="green",
-            font="Arial",
-            size=16
-        )
+    def bind_key(self, callback):
+        self.plotter.add_callback("key press", callback)
 
     def bind_click(self, callback):
         self.plotter.add_callback("mouse click", callback)

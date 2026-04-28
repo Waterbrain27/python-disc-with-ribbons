@@ -33,9 +33,14 @@ class Application:
         self.renderer.add_drawable(self.disc)
         self.renderer.add_drawable(self.plane)
 
-        self.renderer.add_button(self.add_random_ribbon, "Add a ribbon", position=(0.5, 0.05))
         self.mouse_handler.attach(self.renderer)
+        self.renderer.bind_key(self.on_key_press)
+        self.renderer.add_text("Space - add ribbon", position="bottom-left")
         # self._update_topology_display()
+
+    def on_key_press(self, evt):
+        if evt.keypress == "space":
+            self.add_random_ribbon()
 
     def add_random_ribbon(self, *args):
         # Проверка: если уже идёт добавление – выходим

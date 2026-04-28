@@ -47,8 +47,8 @@ class Ribbon(IDrawable):
         # Точки на концах
             p1 = angle_to_point(self._start_angle, self.radius)
             p2 = angle_to_point(self._end_angle, self.radius)
-            point1 = vedo.shapes.Sphere(pos=p1, r=0.026, c='red')
-            point2 = vedo.shapes.Sphere(pos=p2, r=0.026, c='red')
+            point1 = vedo.shapes.Sphere(pos=p1, r=0.052, c='red')
+            point2 = vedo.shapes.Sphere(pos=p2, r=0.052, c='red')
             self._points = [point1, point2]
             if self._mesh is None:
                 print("ERROR: self._mesh still None after _build()")

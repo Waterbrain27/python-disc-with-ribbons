@@ -1,5 +1,6 @@
 from core.disc import Disc
 from core.factory import ObjectFactory
+from core.plane import Plane
 from core.ribbon_generator import RibbonGenerator
 from gui.vedo_renderer import VedoRenderer
 from core.topology import SimpleTopology
@@ -14,6 +15,7 @@ class Application:
         self.topology_calc = topology_calculator or SimpleTopology()
         self.disc_radius = disc_radius
         self.disc = Disc(radius=disc_radius)
+        self.plane = Plane(radius=disc_radius)
         self.factory = ObjectFactory()
         self.ribbon_gen = RibbonGenerator(disc_radius)
         self.ribbon_manager = RibbonManager()
@@ -29,6 +31,7 @@ class Application:
 
     def init(self):
         self.renderer.add_drawable(self.disc)
+        self.renderer.add_drawable(self.plane)
 
         self.renderer.add_button(self.add_random_ribbon, "Add a ribbon", position=(0.5, 0.05))
         self.mouse_handler.attach(self.renderer)

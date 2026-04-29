@@ -5,7 +5,7 @@ class VedoRenderer(IRenderer):
     def __init__(self, title="Disc with ribbons", size=(800, 500)):
         self.plotter = vedo.Plotter(title=title, size=size)
         self._drawables = []      # список добавленных IDrawable
-        self._text_actor = None   # для текста топологии
+        self._text_actors = {}   # для текста топологии
 
     def add_drawable(self, obj):
         mesh = obj.get_mesh()
@@ -47,8 +47,9 @@ class VedoRenderer(IRenderer):
     def bind_release(self, callback):
         self.plotter.add_callback("mouse button release", callback)
 
-    def add_text(self, text: str, position: str = "top-left"):
-        if self._text_actor is not None:
-            self.plotter.remove(self._text_actor)
-        self._text_actor = vedo.Text2D(text, pos=position, font="Courier", s=1.2)
-        self.plotter.add(self._text_actor)
+    def add_text(self, text: str, position: str = "top-left", key: str = "default"):
+        if key in self._text_actors:
+            self.plotter.remove(self._text_actors[key])
+        actor = vedo.Text2D(text, pos=position, font="Courier", s=1.2)
+        self.plotter.add(actor)
+        self._text_actors[key] = actor

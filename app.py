@@ -35,7 +35,7 @@ class Application:
 
         self.mouse_handler.attach(self.renderer)
         self.renderer.bind_key(self.on_key_press)
-        self.renderer.add_text("Space - add ribbon", position="bottom-left")
+        self.renderer.add_text("Space - add a ribbon", position="bottom-left", key="hint")
         # self._update_topology_display()
 
     def on_key_press(self, evt):
@@ -71,7 +71,7 @@ class Application:
 
     def _update_topology(self):
         g, h, m = self.topology_calc.compute(self.ribbon_manager.ribbons)
-        self.renderer.add_text(f"g={g}, h={h}, m={m}", position="top-left")
+        self.renderer.add_text(f"g={g}, h={h}, m={m}", position="top-left", key="topology")
 
     def run(self):
         self.init()

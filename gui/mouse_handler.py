@@ -20,6 +20,9 @@ class MouseHandler(IInteractive):
         renderer.bind_right_click(self.on_right_click)
 
     def on_click(self, evt):
+        if self.dragged_end is not None or self.dragged_ribbon is not None:
+            self._finish_drag()
+            return
         actor = getattr(evt, 'actor', None)
         if actor is None:
             return
@@ -44,7 +47,7 @@ class MouseHandler(IInteractive):
         else:
             new_a1, new_a2 = self.dragged_ribbon.start_angle, new_angle
 
-        new_ribbon = self.dragged_ribbon.clone_with_angles(new_a1, new_a2)
+        new_ribbon = self.dragged_ribbon.clone_with_angles(new_a1, new_a2, self.dragged_ribbon.twist)
         if new_ribbon is None:
             return
 
@@ -58,7 +61,16 @@ class MouseHandler(IInteractive):
         self._original_ribbon = new_ribbon
 
     def on_right_click(self, evt):
-        self._finish_drag()
+        actor = getattr(evt, 'actor', None)
+        ribbons = self.get_ribbons()
+        for ribbon in ribbons:
+            if ribbon.get_mesh() == actor:
+                new_ribbon = ribbon.clone_with_angles(ribbon.start_angle, ribbon.end_angle, 1 - ribbon.twist)
+                self._renderer.remove_drawable(ribbon)
+                self._renderer.add_drawable(new_ribbon)
+                if self.on_ribbon_updated:
+                    self.on_ribbon_updated(ribbon, new_ribbon)
+                return
 
     def _finish_drag(self):
         self.dragged_ribbon = None

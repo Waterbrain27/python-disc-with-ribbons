@@ -47,6 +47,17 @@ class VedoRenderer(IRenderer):
     def bind_release(self, callback):
         self.plotter.add_callback("mouse button release", callback)
 
+    def add_button(self, func, text: str, pos: tuple, c: str, bc: str, size: int):
+        button = self.plotter.add_button(
+            func,
+            states=[text],
+            pos=pos,
+            c=c,
+            bc=bc,
+            size=size
+        )
+        return button
+
     def add_text(self, text: str, position: str = "top-left", key: str = "default"):
         if key in self._text_actors:
             self.plotter.remove(self._text_actors[key])

@@ -29,7 +29,7 @@ class Ribbon(IDrawable):
                 print("You can't attach two edges to one point!")
                 return
             if self._random_height:
-                self._height = rand_float(-0.8, 0.8)
+                self._height = rand_float(0.05, 1)
             ratio = self.width / dist
             inner_start = (start + self.width) % 360
             inner_end = (end - self.width) % 360
@@ -92,12 +92,12 @@ class Ribbon(IDrawable):
         self._build()
         return True
 
-    def clone_with_angles(self, new_angle1, new_angle2):
+    def clone_with_angles(self, new_angle1, new_angle2, twist: int = 0):
         """Создаёт новый Ribbon с новыми углами (если дуга допустима)."""
         _, _, delta = canon_arc(new_angle1, new_angle2)
         if delta < self._width * 2 + 1e-6:
             return None  # дуга слишком короткая
-        return Ribbon(new_angle1, new_angle2, self._width, self._twist,
+        return Ribbon(new_angle1, new_angle2, self._width, twist,
                       self.radius, self.thickness, False, self._height)
 
     @property

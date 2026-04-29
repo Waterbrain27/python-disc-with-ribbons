@@ -25,7 +25,6 @@ class VedoRenderer(IRenderer):
         if hasattr(obj, 'get_points'):
             for pt in obj.get_points():
                 self.plotter.remove(pt)
-        self.plotter.render()
 
     def render(self):
         self.plotter.render()

@@ -1,4 +1,4 @@
-from core.ribbon import Ribbon
+from core.drawable.ribbon import Ribbon
 from core.topology import SimpleTopology, ITopologyCalculator
 
 class ObjectFactory:

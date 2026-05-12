@@ -1,4 +1,4 @@
-from core.geometry import canon_arc, angle_in_interval, form_free_room_list
+from core.geometry import canon_arc, angle_in_interval_strictly, form_free_room_list
 
 
 class RibbonManager:
@@ -23,6 +23,15 @@ class RibbonManager:
             self.occupied.append([start, (start + r.width) % 360])
             self.occupied.append([(end - r.width) % 360, end])
         self.occupied.sort(key=lambda x: x[0])
+
+    def is_interval_free(self, angle1: float, angle2: float) -> bool:
+        for a, b in self.occupied:
+            if (angle_in_interval_strictly(angle1, (a, b)) or
+                    angle_in_interval_strictly(angle2, (a, b)) or
+                    angle_in_interval_strictly(a, (angle1, angle2)) or
+                    angle_in_interval_strictly(b, (angle1, angle2))):
+                return False
+        return True
 
     # def is_move_valid(self, old_ribbon, new_angle1, new_angle2):
     #     """

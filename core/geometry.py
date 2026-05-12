@@ -18,6 +18,13 @@ def angle_in_interval(angle, interval):
     else:
         return angle >= a or angle <= b
 
+def angle_in_interval_strictly(angle, interval):
+    a, b = interval
+    if a <= b:
+        return a < angle < b
+    else:
+        return angle > a or angle < b
+
 def angle_to_point(angle: float, radius: float, center=(0,0,0)) -> np.ndarray:
     rad = np.radians(angle)
     return np.array([radius * np.cos(rad), radius * np.sin(rad), center[2]])

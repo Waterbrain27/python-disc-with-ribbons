@@ -16,6 +16,9 @@ class VedoRenderer(IRenderer):
             for pt in obj.get_points():
                 self.plotter.add(pt)
                 print(f"Добавлена точка: {pt}")  # отладка
+        if hasattr(obj, 'get_arcs'):
+            for arc in obj.get_arcs():
+                self.plotter.add(arc)
         self.plotter.render()
 
     def remove_drawable(self, obj):
@@ -25,6 +28,9 @@ class VedoRenderer(IRenderer):
         if hasattr(obj, 'get_points'):
             for pt in obj.get_points():
                 self.plotter.remove(pt)
+        if hasattr(obj, 'get_arcs'):
+            for arc in obj.get_arcs():
+                self.plotter.remove(arc)
 
     def render(self):
         self.plotter.render()

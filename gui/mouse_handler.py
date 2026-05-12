@@ -51,11 +51,11 @@ class MouseHandler(IInteractive):
         if new_ribbon is None:
             return
 
-        self._renderer.remove_drawable(self._original_ribbon)
-        self._renderer.add_drawable(new_ribbon)
-
         if self.on_ribbon_updated:
             self.on_ribbon_updated(self._original_ribbon, new_ribbon)
+
+        self._renderer.remove_drawable(self._original_ribbon)
+        self._renderer.add_drawable(new_ribbon)
 
         self.dragged_ribbon = new_ribbon
         self._original_ribbon = new_ribbon

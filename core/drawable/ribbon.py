@@ -17,6 +17,7 @@ class Ribbon(IDrawable):
         self.radius = radius
         self.thickness = thickness
         self._mesh = None
+        self.arcs = []
         self._points = []   # две сферы-точки
         self._build()
         print(f"Ribbon __init__: angles {angle1}, {angle2}, width {width}")  # отладка
@@ -39,7 +40,7 @@ class Ribbon(IDrawable):
             else:
                 outer_arc = self._create_arc(inner_start, end, self._height)
                 inner_arc = self._create_arc(start, inner_end, self._height * (1 - 2 * ratio))
-
+            self.arcs = [outer_arc, inner_arc]
             ribbon_surface = vedo.Ribbon(outer_arc, inner_arc)
             self._mesh = ribbon_surface.extrude(zshift=self.thickness, res=1)
             self._mesh.c('orange').alpha(0.8)
@@ -57,7 +58,7 @@ class Ribbon(IDrawable):
         except Exception as e:
             print(f"Exception in _build: {e}")
 
-    def _create_arc(self, angle1, angle2, height_change):
+    def _create_arc(self, angle1, angle2, height_change, c='orange'):
         angle1 = np.radians(angle1)
         angle2 = np.radians(angle2)
         p1 = (self.radius * np.cos(angle1), self.radius * np.sin(angle1), 0)
@@ -70,11 +71,14 @@ class Ribbon(IDrawable):
             length = np.linalg.norm(vec)
         norm = vec / length
         arc_center = norm * self.radius + np.array([0.0, 0.0, height_change])
-        arc_line = vedo.Arc(center=arc_center, point1=p1, point2=p2, res=50, invert=True)
+        arc_line = vedo.Arc(center=arc_center, point1=p1, point2=p2, res=50, invert=True).c(c).lw(3)
         return arc_line
 
     def get_mesh(self):
         return self._mesh
+
+    def get_arcs(self):
+        return self.arcs
 
     def get_points(self):
         return self._points

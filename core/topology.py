@@ -1,6 +1,6 @@
 from typing import List, Tuple
 from core.interfaces import ITopologyCalculator
-from core.ribbon import Ribbon
+from core.drawable.ribbon import Ribbon
 
 class SimpleTopology(ITopologyCalculator):
     def compute(self, ribbons: List[Ribbon]) -> Tuple[int, int, int]:

@@ -4,6 +4,9 @@ import numpy as np
 import random
 from typing import List, Tuple, Union
 from core.constants import MIN_INTERVAL_LENGTH, DISK_CENTER
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from core.drawable.ribbon import Ribbon
 
 
 def canon_arc(angle1: float, angle2: float) -> Tuple[float, float, float]:
@@ -75,18 +78,26 @@ def dist(interval: Tuple[float, float]) -> float:
     _, _, delta = canon_arc(interval[0], interval[1])
     return delta
 
+def almost_equal(a: float, b: float) -> bool:
+    diff = abs(a - b) % 360
+    return diff < 1e-3 or diff > 360 - 1e-3
 
-def form_free_room_list(intervals: List[Tuple[float, float]]) -> List[List[float]]:
+def bool_canon(angle1: float, angle2: float) -> bool:
+    start, end, _ = canon_arc(angle1, angle2)
+    return almost_equal(start, angle1)
+
+
+def form_free_room_list(intervals: List[tuple[tuple[float, float], 'Ribbon']]) -> List[List[float]]:
     """
     По заданному отсортированному списку занятых интервалов (список [start, end])
     вернуть список свободных интервалов, достаточно больших (длиннее MIN_INTERVAL_LENGTH).
     """
     free_room = []
     for i in range(len(intervals) - 1):
-        start, end, d = canon_arc(intervals[i][1], intervals[i + 1][0])
+        start, end, d = canon_arc(intervals[i][0][1], intervals[i + 1][0][0])
         if d > MIN_INTERVAL_LENGTH:
-            free_room.append([intervals[i][1], intervals[i + 1][0]])
-    start, end, d = canon_arc(intervals[-1][1], intervals[0][0])
+            free_room.append([intervals[i][0][1], intervals[i + 1][0][0]])
+    start, end, d = canon_arc(intervals[-1][0][1], intervals[0][0][0])
     if d > MIN_INTERVAL_LENGTH:
-        free_room.append([intervals[-1][1], intervals[0][0]])
+        free_room.append([intervals[-1][0][1], intervals[0][0][0]])
     return free_room

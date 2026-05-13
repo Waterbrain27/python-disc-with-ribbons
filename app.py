@@ -14,7 +14,7 @@ from core.managers.ribbon_generator import RibbonGenerator
 from gui.vedo_renderer import VedoRenderer
 from core.math_machinery.topology import Topology
 from core.constants import DISK_RADIUS, PALETTE
-from core.managers.interval_manager import RibbonManager
+from core.managers.ribbon_manager import RibbonManager
 from gui.mouse_handler import MouseHandler
 
 
@@ -52,6 +52,7 @@ class Application:
             disc_radius=disc_radius
         )
         self.mouse_handler.on_ribbon_updated = self._on_ribbon_changed
+        self.mouse_handler.is_interval_free = self.is_interval_free_advanced
 
         # Флаги и служебные переменные
         self._adding_ribbon: bool = False
@@ -82,6 +83,8 @@ class Application:
         """
         if evt.keypress == "space":
             self.add_random_ribbon()
+        if evt.keypress == "z":
+            self.remove_last_ribbon()
 
     def add_random_ribbon(self, *args, **kwargs) -> None:
         """
@@ -109,6 +112,15 @@ class Application:
         finally:
             self._adding_ribbon = False
 
+    def remove_last_ribbon(self):
+        last_ribbon = self.ribbon_manager.last_ribbon
+        if last_ribbon is not None:
+            self.ribbon_manager.replace_ribbon(last_ribbon, None)
+            self.renderer.remove_drawable(last_ribbon)
+            self._update_boundary()
+            self._update_topology()
+            self.renderer.render()
+
     def _update_boundary(self) -> None:
         """
         Перерисовывает граничные циклы на основе текущих ленточек.
@@ -127,8 +139,6 @@ class Application:
         graph.build()
         disk_edges_set = set(graph.disk_edges)
         cycles = graph.get_cycles()
-        print(len(cycles))
-        print(cycles)
 
         colors = PALETTE
         for i, cycle in enumerate(cycles):
@@ -176,6 +186,22 @@ class Application:
         self.ribbon_manager.replace_ribbon(old_ribbon, new_ribbon)
         self._update_boundary()
         self._update_topology()
+
+    def is_interval_free_advanced(self, new_a1, new_a2, old_ribbon: 'Ribbon'):
+        """
+        Вычисляет, можно ли передвинуть ленточку без пересечения по интервалам с другими ленточками
+        """
+        start, end = new_a1, new_a2
+        delta = (end - start) % 360
+        width = old_ribbon.width
+        if delta < 2 * width + 1e-6:
+            return False
+        free = (
+                self.ribbon_manager.is_interval_free(start, (start + width) % 360, extend=True, ignore=[old_ribbon])
+                and
+                self.ribbon_manager.is_interval_free((end - width) % 360, end, extend=True, ignore=[old_ribbon])
+        )
+        return free
 
     def _update_topology(self) -> None:
         """

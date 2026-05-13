@@ -42,7 +42,7 @@ class RibbonGenerator:
         one, two = self.rng.integers(0, len(free_room), 2)
         sector1 = free_room[one]
         sector2 = free_room[two]
-
+        sector = None
         if one != two:
             min_range = min(dist(sector1), dist(sector2))
             if min_range < MIN_INTERVAL_LENGTH:
@@ -59,6 +59,8 @@ class RibbonGenerator:
                 else:
                     start_sector, end_sector = sector2, sector1
                 max_width = min((start_sector[1] - start) % 360, (end - end_sector[0]) % 360)
+                if max_width <= 1e-6:
+                    continue
                 width = rand_float(max_width * 0.4, max_width * 0.8)
                 twist = random.randint(0, 1)
                 ribbon = self.factory.create_ribbon(angle1, angle2, width, twist,
@@ -82,6 +84,14 @@ class RibbonGenerator:
                 ribbon = self.factory.create_ribbon(angle1, angle2, width, twist,
                                                     self.radius, self.thickness, True)
                 if ribbon is not None:
+                    start, end, delta = canon_arc(angle1, angle2)
+                    if delta < 2 * width + 1e-6:
+                        continue
+                    ok = (ribbon_manager.is_interval_free(start, (start + width) % 360, extend=True)
+                          and
+                          ribbon_manager.is_interval_free((end - width) % 360, end, extend=True))
+                    if not ok:
+                        continue
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon
         if sector is not None:

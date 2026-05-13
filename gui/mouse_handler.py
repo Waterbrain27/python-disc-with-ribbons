@@ -2,7 +2,7 @@ from typing import Callable, List, Optional, Tuple
 
 from core.constants import DISK_RADIUS, DISK_CENTER
 from core.managers.interfaces import IInteractive, IRenderer
-from core.math_machinery.geometry import point_to_angle
+from core.math_machinery.geometry import point_to_angle, bool_canon
 
 
 class MouseHandler(IInteractive):
@@ -15,6 +15,7 @@ class MouseHandler(IInteractive):
         disc_center: Tuple[float, float, float] = DISK_CENTER
     ) -> None:
         self.get_ribbons = get_ribbons_func
+        self.is_interval_free = None
         self.radius = disc_radius
         self.center = disc_center
         self._renderer: Optional[IRenderer] = None
@@ -59,6 +60,13 @@ class MouseHandler(IInteractive):
             new_a1, new_a2 = new_angle, self.dragged_ribbon.end_angle
         else:
             new_a1, new_a2 = self.dragged_ribbon.start_angle, new_angle
+
+        if not bool_canon(new_a1, new_a2):
+            new_a1, new_a2 = new_a2, new_a1
+            self.dragged_end = 1 - self.dragged_end
+
+        if not self.is_interval_free(new_a1, new_a2, self._original_ribbon):
+            return
 
         new_ribbon = self.dragged_ribbon.clone_with_angles(new_a1, new_a2, self.dragged_ribbon.twist)
         if new_ribbon is None:

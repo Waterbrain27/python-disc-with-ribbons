@@ -1,25 +1,38 @@
-from core.interfaces import IInteractive
+from typing import Callable, List, Optional, Tuple
+
+from core.constants import DISK_RADIUS, DISK_CENTER
+from core.interfaces import IInteractive, IRenderer
 from core.geometry import point_to_angle
 
+
 class MouseHandler(IInteractive):
-    def __init__(self, get_ribbons_func, disc_radius=3.0, disc_center=(0,0,0)):
+    """Обработчик взаимодействия мыши с ленточками (перетаскивание концов, правый клик)."""
+
+    def __init__(
+        self,
+        get_ribbons_func: Callable[[], List['Ribbon']],
+        disc_radius: float = DISK_RADIUS,
+        disc_center: Tuple[float, float, float] = DISK_CENTER
+    ) -> None:
         self.get_ribbons = get_ribbons_func
         self.radius = disc_radius
         self.center = disc_center
-        self._renderer = None
-        self.on_ribbon_updated = None
+        self._renderer: Optional[IRenderer] = None
+        self.on_ribbon_updated: Optional[Callable[['Ribbon', 'Ribbon'], None]] = None
 
-        self.dragged_ribbon = None
-        self.dragged_end = None
-        self._original_ribbon = None
+        self.dragged_ribbon: Optional['Ribbon'] = None
+        self.dragged_end: Optional[int] = None
+        self._original_ribbon: Optional['Ribbon'] = None
 
-    def attach(self, renderer):
+    def attach(self, renderer: IRenderer) -> None:
+        """Прикрепить обработчики событий к рендереру."""
         self._renderer = renderer
         renderer.bind_click(self.on_click)
         renderer.bind_move(self.on_mouse_move)
         renderer.bind_right_click(self.on_right_click)
 
-    def on_click(self, evt):
+    def on_click(self, evt: object) -> None:
+        """Левый клик: начать перетаскивание конца ленточки."""
         if self.dragged_end is not None or self.dragged_ribbon is not None:
             self._finish_drag()
             return
@@ -27,8 +40,7 @@ class MouseHandler(IInteractive):
         if actor is None:
             return
 
-        ribbons = self.get_ribbons()
-        for ribbon in ribbons:
+        for ribbon in self.get_ribbons():
             for idx, pt in enumerate(ribbon.get_points()):
                 if pt == actor:
                     self.dragged_ribbon = ribbon
@@ -36,7 +48,8 @@ class MouseHandler(IInteractive):
                     self._original_ribbon = ribbon
                     return
 
-    def on_mouse_move(self, evt):
+    def on_mouse_move(self, evt: object) -> None:
+        """Движение мыши: обновлять положение перетаскиваемого конца."""
         if self.dragged_ribbon is None:
             return
         if not hasattr(evt, 'picked3d') or evt.picked3d is None:
@@ -60,7 +73,8 @@ class MouseHandler(IInteractive):
         self.dragged_ribbon = new_ribbon
         self._original_ribbon = new_ribbon
 
-    def on_right_click(self, evt):
+    def on_right_click(self, evt: object) -> None:
+        """Правый клик: переключить перекручивание ленточки."""
         actor = getattr(evt, 'actor', None)
         ribbons = self.get_ribbons()
         for ribbon in ribbons:
@@ -72,7 +86,8 @@ class MouseHandler(IInteractive):
                     self.on_ribbon_updated(ribbon, new_ribbon)
                 return
 
-    def _finish_drag(self):
+    def _finish_drag(self) -> None:
+        """Завершить перетаскивание."""
         self.dragged_ribbon = None
         self.dragged_end = None
         self._original_ribbon = None

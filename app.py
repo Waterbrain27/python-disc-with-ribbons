@@ -5,7 +5,7 @@ from core.drawable.plane import Plane
 from core.geometry import angle_to_point, canon_arc
 from core.ribbon_generator import RibbonGenerator
 from gui.vedo_renderer import VedoRenderer
-from core.topology import SimpleTopology
+from core.topology import Topology
 from core.constants import DISK_RADIUS
 from core.interval_manager import RibbonManager
 from gui.mouse_handler import MouseHandler
@@ -15,13 +15,13 @@ import vedo
 class Application:
     def __init__(self, renderer=None, topology_calculator=None, disc_radius=DISK_RADIUS):
         self.renderer = renderer or VedoRenderer()
-        self.topology_calc = topology_calculator or SimpleTopology()
         self.disc_radius = disc_radius
         self.disc = Disc(radius=disc_radius)
         self.plane = Plane(radius=disc_radius)
         self.factory = ObjectFactory()
         self.ribbon_gen = RibbonGenerator(disc_radius)
         self.ribbon_manager = RibbonManager()
+        self.topology_calc = Topology(self.ribbon_manager.ribbons)
 
         self.mouse_handler = MouseHandler(
             get_ribbons_func=lambda: self.ribbon_manager.ribbons,
@@ -64,8 +64,8 @@ class Application:
             if new_ribbon:
                 self.ribbon_manager.add_ribbon(new_ribbon)
                 self.renderer.add_drawable(new_ribbon)
-                self._update_topology()
                 self._update_boundary()
+                self._update_topology()
         except Exception as e:
             print(f"Ошибка при добавлении ленточки: {e}")
         finally:
@@ -133,12 +133,15 @@ class Application:
 
     def _on_ribbon_changed(self, old_ribbon, new_ribbon):
         self.ribbon_manager.replace_ribbon(old_ribbon, new_ribbon)
-        self._update_topology()
         self._update_boundary()
+        self._update_topology()
 
     def _update_topology(self):
-        g, h, m = self.topology_calc.compute(self.ribbon_manager.ribbons)
-        self.renderer.add_text(f"g={g}, h={h}, m={m}", position="top-left", key="topology")
+        self.topology_calc.ribbons = self.ribbon_manager.ribbons
+        self.topology_calc.compute()
+        self.renderer.add_text(f"is_orientable={self.topology_calc.is_orientable}, "
+                               f"g={self.topology_calc.g}, h={self.topology_calc.h}, m={self.topology_calc.m},"
+                               f"x={self.topology_calc.chi}", position="top-left", key="topology")
 
     def run(self):
         self.init()

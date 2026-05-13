@@ -49,7 +49,7 @@ class IRenderer(ABC):
 
 class ITopologyCalculator(ABC):
     @abstractmethod
-    def compute(self, ribbons: List['Ribbon']) -> Tuple[int, int, int]:
+    def compute(self):
         pass
 
 class IInteractive(ABC):

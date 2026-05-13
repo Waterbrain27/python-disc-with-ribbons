@@ -1,5 +1,5 @@
 from core.drawable.ribbon import Ribbon
-from core.topology import SimpleTopology, ITopologyCalculator
+from core.topology import Topology, ITopologyCalculator
 
 class ObjectFactory:
     @staticmethod
@@ -11,6 +11,6 @@ class ObjectFactory:
     @staticmethod
     def create_topology_calculator(mode: str = 'simple') -> ITopologyCalculator:
         if mode == 'simple':
-            return SimpleTopology()
+            return Topology()
         else:
             raise ValueError(f"Unknown topology mode: {mode}")

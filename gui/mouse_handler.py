@@ -1,8 +1,8 @@
 from typing import Callable, List, Optional, Tuple
 
 from core.constants import DISK_RADIUS, DISK_CENTER
-from core.interfaces import IInteractive, IRenderer
-from core.geometry import point_to_angle
+from core.managers.interfaces import IInteractive, IRenderer
+from core.math_machinery.geometry import point_to_angle
 
 
 class MouseHandler(IInteractive):

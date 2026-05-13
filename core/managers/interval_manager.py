@@ -1,5 +1,5 @@
 from typing import List
-from core.geometry import canon_arc, angle_in_interval_strictly
+from core.math_machinery.geometry import canon_arc, angle_in_interval_strictly
 
 
 class RibbonManager:
@@ -36,8 +36,8 @@ class RibbonManager:
         """
         for a, b in self.occupied:
             if (angle_in_interval_strictly(angle1, (a, b)) or
-                    angle_in_interval_strictly(angle2, (a, b)) or
-                    angle_in_interval_strictly(a, (angle1, angle2)) or
-                    angle_in_interval_strictly(b, (angle1, angle2))):
+                angle_in_interval_strictly(angle2, (a, b)) or
+                angle_in_interval_strictly(a, (angle1, angle2)) or
+                angle_in_interval_strictly(b, (angle1, angle2))):
                 return False
         return True

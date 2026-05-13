@@ -1,7 +1,7 @@
 import vedo
 
 from core.constants import WINDOW_SIZE, WINDOW_TITLE
-from core.interfaces import IRenderer
+from core.managers.interfaces import IRenderer
 
 
 class VedoRenderer(IRenderer):

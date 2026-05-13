@@ -1,6 +1,6 @@
-from core.constants import DISK_RADIUS, RIBBON_RADIUS, RIBBON_DEFAULT_TWIST, RIBBON_DEFAULT_THICKNESS
+from core.constants import RIBBON_RADIUS, RIBBON_DEFAULT_TWIST, RIBBON_DEFAULT_THICKNESS
 from core.drawable.ribbon import Ribbon
-from core.topology import Topology, ITopologyCalculator
+from core.math_machinery.topology import Topology, ITopologyCalculator
 
 
 class ObjectFactory:

@@ -30,7 +30,7 @@ MAX_ATTEMPTS = 60
 
 # Интерфейс
 WINDOW_TITLE = "Disc with ribbons"
-WINDOW_SIZE = (800, 500)
+WINDOW_SIZE = (1530, 800)
 BUTTON_FONT = "Arial"
 BUTTON_SIZE = 16
 

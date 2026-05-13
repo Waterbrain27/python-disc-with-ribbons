@@ -1,8 +1,8 @@
 import random
 import numpy as np
 from typing import Optional
-from core.geometry import canon_arc, rand_float, dist, form_free_room_list, rand_angle, angle_in_interval
-from core.factory import ObjectFactory
+from core.math_machinery.geometry import canon_arc, rand_float, dist, form_free_room_list, rand_angle, angle_in_interval
+from core.managers.factory import ObjectFactory
 from core.constants import MAX_ATTEMPTS, MIN_DELTA, MIN_INTERVAL_LENGTH, DISK_RADIUS, DISK_THICKNESS
 
 

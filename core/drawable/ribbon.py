@@ -1,11 +1,11 @@
 import vedo
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import List, Optional
 
 from core.constants import RIBBON_DEFAULT_TWIST, RIBBON_RADIUS, RIBBON_DEFAULT_THICKNESS, RIBBON_ALPHA, POINT_RADIUS, \
     RIBBON_COLOR, POINT_COLOR, DISK_CENTER
-from core.interfaces import IDrawable
-from core.geometry import canon_arc, angle_to_point, rand_float
+from core.managers.interfaces import IDrawable
+from core.math_machinery.geometry import canon_arc, angle_to_point, rand_float
 
 
 class Ribbon(IDrawable):

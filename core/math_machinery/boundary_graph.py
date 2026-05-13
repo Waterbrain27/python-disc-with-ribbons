@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Set, Optional
-from core.geometry import canon_arc, angle_in_interval_strictly
+from core.math_machinery.geometry import canon_arc, angle_in_interval_strictly
 
 
 class BoundaryGraph:

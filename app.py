@@ -1,20 +1,20 @@
 """Основной класс приложения, управляющий сценой, ленточками и взаимодействиями."""
 
 import time
-from typing import List, Callable, Optional, Any
+from typing import List, Optional, Any
 
 import vedo
 
-from core.boundary_graph import BoundaryGraph
+from core.math_machinery.boundary_graph import BoundaryGraph
 from core.drawable.disc import Disc
-from core.factory import ObjectFactory
+from core.managers.factory import ObjectFactory
 from core.drawable.plane import Plane
-from core.geometry import angle_to_point, canon_arc
-from core.ribbon_generator import RibbonGenerator
+from core.math_machinery.geometry import angle_to_point, canon_arc
+from core.managers.ribbon_generator import RibbonGenerator
 from gui.vedo_renderer import VedoRenderer
-from core.topology import Topology
+from core.math_machinery.topology import Topology
 from core.constants import DISK_RADIUS, PALETTE
-from core.interval_manager import RibbonManager
+from core.managers.interval_manager import RibbonManager
 from gui.mouse_handler import MouseHandler
 
 
@@ -134,7 +134,6 @@ class Application:
         for i, cycle in enumerate(cycles):
             color = colors[i % len(colors)]
             for v1, v2, typ in cycle:
-                arc = None
                 if typ == 'disk':
                     p1 = angle_to_point(v1, DISK_RADIUS)
                     p2 = angle_to_point(v2, DISK_RADIUS)
@@ -148,6 +147,9 @@ class Application:
                         invert=invert,
                         res=100
                     )
+                    arc.c(color).lw(4)
+                    self.renderer.plotter.add(arc)
+                    self.boundary_arcs.append(arc)
                 elif typ == 'outer':
                     # Перекрасить внешний край ленточки
                     start, end, _ = canon_arc(v1, v2)
@@ -160,12 +162,6 @@ class Application:
                     old_ribbon = graph.ribbon_inner[(start, end)]
                     idx = self.ribbon_manager.ribbons.index(old_ribbon)
                     self.ribbon_manager.ribbons[idx].arcs[1].c(color)
-
-                if not arc:
-                    continue
-                arc.c(color).lw(4)
-                self.renderer.plotter.add(arc)
-                self.boundary_arcs.append(arc)
 
         self.renderer.render()
 

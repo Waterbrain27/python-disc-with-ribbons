@@ -1,5 +1,5 @@
 import vedo
-from core.interfaces import IDrawable
+from core.managers.interfaces import IDrawable
 
 
 class Disc(IDrawable):

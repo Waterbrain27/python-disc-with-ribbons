@@ -1,8 +1,8 @@
 import vedo
 import numpy as np
 
-from core.constants import DISK_RADIUS, DISK_THICKNESS, PLANE_RADIUS, PLANE_THICKNESS, PLANE_CENTER, PLANE_ALPHA
-from core.interfaces import IDrawable
+from core.constants import PLANE_RADIUS, PLANE_THICKNESS, PLANE_CENTER, PLANE_ALPHA
+from core.managers.interfaces import IDrawable
 
 
 class Plane(IDrawable):

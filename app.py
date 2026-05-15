@@ -9,7 +9,7 @@ from core.math_machinery.boundary_graph import BoundaryGraph
 from core.drawable.disc import Disc
 from core.managers.factory import ObjectFactory
 from core.drawable.plane import Plane
-from core.math_machinery.geometry import angle_to_point, canon_arc
+from core.math_machinery.geometry import angle_to_point, canon_arc, is_on_disc
 from core.managers.ribbon_generator import RibbonGenerator
 from gui.vedo_renderer import VedoRenderer
 from core.math_machinery.topology import Topology
@@ -68,8 +68,11 @@ class Application:
 
         self.mouse_handler.attach(self.renderer)
         self.renderer.bind_key(self.on_key_press)
+        self.renderer.bind_click(self.click)
         self.renderer.add_text(
-            "Space - add a ribbon",
+            "Space - add a random ribbon\n"
+            "z - return only the last random added ribbon\n"
+            "Click near the boundary of disc - add a ribbon",
             position="bottom-left",
             key="hint"
         )
@@ -85,6 +88,17 @@ class Application:
             self.add_random_ribbon()
         if evt.keypress == "z":
             self.remove_last_ribbon()
+
+    def click(self, evt: Any) -> None:
+        actor = getattr(evt, 'actor', None)
+        if actor is None:
+            return
+
+        if not hasattr(evt, 'picked3d') or self.mouse_handler.new_add or not is_on_disc(evt.picked3d):
+            return
+
+        if evt.name == "LeftButtonPressEvent":
+            self._on_ribbon_changed(None, self.mouse_handler.dragged_ribbon)
 
     def add_random_ribbon(self, *args, **kwargs) -> None:
         """
@@ -175,7 +189,7 @@ class Application:
 
         self.renderer.render()
 
-    def _on_ribbon_changed(self, old_ribbon: 'Ribbon', new_ribbon: 'Ribbon') -> None:
+    def _on_ribbon_changed(self, old_ribbon: Optional['Ribbon'], new_ribbon: 'Ribbon') -> None:
         """
         Обратный вызов при изменении ленточки (перемещение конца или перекручивание).
 
@@ -183,7 +197,10 @@ class Application:
             old_ribbon: старая (заменяемая) ленточка.
             new_ribbon: новая ленточка.
         """
-        self.ribbon_manager.replace_ribbon(old_ribbon, new_ribbon)
+        if old_ribbon:
+            self.ribbon_manager.replace_ribbon(old_ribbon, new_ribbon)
+        else:
+            self.ribbon_manager.add_ribbon(new_ribbon)
         self._update_boundary()
         self._update_topology()
 

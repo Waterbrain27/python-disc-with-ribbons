@@ -26,15 +26,16 @@ class BoundaryGraph:
         # Собрать все занятые интервалы и запомнить их концы
         occupied: List[List[float]] = []
         for r in self.ribbons:
-            start, end, _ = canon_arc(r.start_angle, r.end_angle)
-            w = r.width
-            # два приклеенных интервала одной ленточки
-            int1 = [start, (start + w) % 360]
-            int2 = [(end - w) % 360, end]
-            occupied.append(int1)
-            occupied.append(int2)
-            # вершины – концы этих интервалов
-            self.vertices.extend([int1[0], int1[1], int2[0], int2[1]])
+            if r:
+                start, end, _ = canon_arc(r.start_angle, r.end_angle)
+                w = r.width
+                # два приклеенных интервала одной ленточки
+                int1 = [start, (start + w) % 360]
+                int2 = [(end - w) % 360, end]
+                occupied.append(int1)
+                occupied.append(int2)
+                # вершины – концы этих интервалов
+                self.vertices.extend([int1[0], int1[1], int2[0], int2[1]])
 
         # Уникальные вершины и сортировка
         self.vertices = sorted(set(v % 360 for v in self.vertices))
@@ -51,18 +52,19 @@ class BoundaryGraph:
 
         # Рёбра ленточек
         for r in self.ribbons:
-            start, end, _ = canon_arc(r.start_angle, r.end_angle)
-            w = r.width
-            inner_start = (start + w) % 360
-            inner_end = (end - w) % 360
-            if r.twist == 0:
-                outer_pair = (start, end)
-                inner_pair = (inner_start, inner_end)
-            else:
-                outer_pair = (inner_start, end)
-                inner_pair = (start, inner_end)
-            self.ribbon_outer[outer_pair] = r
-            self.ribbon_inner[inner_pair] = r
+            if r:
+                start, end, _ = canon_arc(r.start_angle, r.end_angle)
+                w = r.width
+                inner_start = (start + w) % 360
+                inner_end = (end - w) % 360
+                if r.twist == 0:
+                    outer_pair = (start, end)
+                    inner_pair = (inner_start, inner_end)
+                else:
+                    outer_pair = (inner_start, end)
+                    inner_pair = (start, inner_end)
+                self.ribbon_outer[outer_pair] = r
+                self.ribbon_inner[inner_pair] = r
 
     def get_cycles(self) -> List[List[Tuple[float, float, str]]]:
         """

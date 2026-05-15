@@ -36,9 +36,10 @@ class RibbonManager:
         """Пересчитать занятые интервалы по всем ленточкам."""
         self.occupied = []
         for r in self.ribbons:
-            start, end, _ = canon_arc(r.start_angle, r.end_angle)
-            self.occupied.append(((start, (start + r.width) % 360), r))
-            self.occupied.append((((end - r.width) % 360, end), r))
+            if r:
+                start, end, _ = canon_arc(r.start_angle, r.end_angle)
+                self.occupied.append(((start, (start + r.width) % 360), r))
+                self.occupied.append((((end - r.width) % 360, end), r))
         self.occupied.sort(key=lambda x: x[0][0])
 
     def is_interval_free(self, angle1: float, angle2: float, extend: bool = False, ignore=None) -> bool:

@@ -2,12 +2,20 @@
 
 import numpy as np
 import random
+import math
 from typing import List, Tuple, Union
-from core.constants import MIN_INTERVAL_LENGTH, DISK_CENTER
+from core.constants import MIN_INTERVAL_LENGTH, DISK_CENTER, PERMISSIBLE_RANGE, DISK_RADIUS
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from core.drawable.ribbon import Ribbon
 
+def is_on_disc(point: Union[Tuple[float, float, float], np.ndarray], center: Tuple[float, float, float] = DISK_CENTER, radius: float=DISK_RADIUS, tolerance: float=PERMISSIBLE_RANGE) -> bool:
+    """Проверяет, лежит ли точка на окружности диска (в пределах tolerance)."""
+    dx = point[0] - center[0]
+    dy = point[1] - center[1]
+    dz = point[2] - center[2]
+    dist_to_center = math.sqrt(dx*dx + dy*dy + dz*dz)
+    return abs(dist_to_center - radius) <= tolerance
 
 def canon_arc(angle1: float, angle2: float) -> Tuple[float, float, float]:
     """
@@ -43,7 +51,7 @@ def angle_in_interval_strictly(angle: float, interval: Tuple[float, float]) -> b
         return angle > a or angle < b
 
 
-def angle_to_point(angle: float, radius: float, center: Tuple[float, float, float] = (0, 0, 0)) -> np.ndarray:
+def angle_to_point(angle: float, radius: float, center: Tuple[float, float, float] = DISK_CENTER) -> np.ndarray:
     """Преобразовать угол на диске в 3D-точку (z = center[2])."""
     rad = np.radians(angle)
     return np.array([radius * np.cos(rad), radius * np.sin(rad), center[2]])

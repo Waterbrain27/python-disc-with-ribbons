@@ -13,6 +13,7 @@ PLANE_RADIUS = 3.0
 PLANE_CENTER = [0, 0, 0]
 PLANE_THICKNESS = 0.0
 PLANE_ALPHA = 0.1
+PERMISSIBLE_RANGE = 0.1
 
 # Ленточки
 MOVE_MARGIN = 3
@@ -25,13 +26,14 @@ POINT_RADIUS = 0.052
 POINT_COLOR = 'red'
 
 # Генерация
+MIN_WIDTH = 4
 MIN_DELTA = 20          # минимальная длина дуги в градусах
 MIN_INTERVAL_LENGTH = MIN_DELTA * 0.35
 MAX_ATTEMPTS = 60
 
 # Интерфейс
 WINDOW_TITLE = "Disc with ribbons"
-WINDOW_SIZE = (1530, 800)
+WINDOW_SIZE = (1520, 790)
 BUTTON_FONT = "Arial"
 BUTTON_SIZE = 16
 

@@ -47,8 +47,8 @@ class Topology(ITopologyCalculator, ABC):
         поэтому здесь self.m не трогаем.
         """
         self.k = len(self.ribbons)
-        self.l = sum(1 for r in self.ribbons if r.twist == 0)
-        self._twisted_count = sum(1 for r in self.ribbons if r.twist == 1)
+        self.l = sum(1 for r in self.ribbons if r and r.twist == 0)
+        self._twisted_count = sum(1 for r in self.ribbons if r and r.twist == 1)
 
     def boundary_count(self) -> None:
         """Подсчитать число граничных компонент с помощью BoundaryGraph."""

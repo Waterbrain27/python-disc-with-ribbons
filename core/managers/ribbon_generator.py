@@ -15,7 +15,7 @@ class RibbonGenerator:
         self.factory = ObjectFactory()
         self.rng = np.random.default_rng()
 
-    def generate_random_ribbon(self, ribbon_manager: 'RibbonManager') -> Optional['Ribbon']:
+    def generate_random_ribbon(self, ribbon_manager: 'RibbonManager', random_ribbon: bool=True, angle: float=0.0) -> Optional['Ribbon']:
         """
         Сгенерировать случайную ленточку, которая помещается в свободные интервалы.
 
@@ -24,7 +24,10 @@ class RibbonGenerator:
         """
         if not ribbon_manager.occupied:
             for attempt in range(MAX_ATTEMPTS):
-                angle1 = rand_float(0, 360)
+                if random_ribbon:
+                    angle1 = rand_float(0, 360)
+                else:
+                    angle1 = angle
                 angle2 = rand_float(0, 360)
                 _, _, delta = canon_arc(angle1, angle2)
                 if delta >= MIN_DELTA:

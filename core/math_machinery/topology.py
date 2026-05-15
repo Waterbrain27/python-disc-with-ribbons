@@ -114,7 +114,7 @@ class Topology(ITopologyCalculator, ABC):
                 if self.g == 0:
                     return "Disk"
                 elif self.g == 1:
-                    return "Torus with a hole (sphere with one handle and one hole)"
+                    return "Torus with a hole (sphere with one handle and two hole)"
                 else:
                     return f"Sphere with {self.g} handles and one hole"
             elif self.h == 2:

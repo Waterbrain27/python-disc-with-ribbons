@@ -27,7 +27,7 @@ POINT_COLOR = 'red'
 
 # Генерация
 MIN_WIDTH = 4
-MIN_DELTA = 4          # минимальная длина дуги в градусах
+MIN_DELTA = 10          # минимальная длина дуги в градусах
 MIN_INTERVAL_LENGTH = MIN_DELTA * 0.35
 MAX_ATTEMPTS = 60
 

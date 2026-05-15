@@ -27,7 +27,7 @@ POINT_COLOR = 'red'
 
 # Генерация
 MIN_WIDTH = 4
-MIN_DELTA = 20          # минимальная длина дуги в градусах
+MIN_DELTA = 4          # минимальная длина дуги в градусах
 MIN_INTERVAL_LENGTH = MIN_DELTA * 0.35
 MAX_ATTEMPTS = 60
 
@@ -36,6 +36,7 @@ WINDOW_TITLE = "Disc with ribbons"
 WINDOW_SIZE = (1520, 790)
 BUTTON_FONT = "Arial"
 BUTTON_SIZE = 16
+TEXT_SIZE = 1
 
 PALETTE = []
 for i in range(360):

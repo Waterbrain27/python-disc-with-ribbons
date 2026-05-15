@@ -68,13 +68,18 @@ class Application:
 
         self.mouse_handler.attach(self.renderer)
         self.renderer.bind_key(self.on_key_press)
-        self.renderer.bind_click(self.click)
         self.renderer.add_text(
             "Space - add a random ribbon\n"
             "z - return only the last random added ribbon\n"
-            "Click near the boundary of disc - add a ribbon",
+            "Click near the boundary of disc and drag - add a ribbon and adjust the location\n"
+            "Click on the red sphere and drag - adjust the location of the ribbon",
             position="bottom-left",
             key="hint"
+        )
+        self.renderer.add_text(
+            "Made any action with mouse to update topology information",
+            position="top-right",
+            key="info"
         )
 
     def on_key_press(self, evt: Any) -> None:
@@ -88,23 +93,6 @@ class Application:
             self.add_random_ribbon()
         if evt.keypress == "z":
             self.remove_last_ribbon()
-
-    def click(self, evt: Any) -> None:
-        """
-        Обработчик нажатия мыши.
-
-        Args:
-            evt: объект события vedo, содержащий поле keypress.
-        """
-        actor = getattr(evt, 'actor', None)
-        if actor is None:
-            return
-
-        if not hasattr(evt, 'picked3d') or self.mouse_handler.new_add or not is_on_disc(evt.picked3d):
-            return
-
-        if evt.name == "LeftButtonPressEvent":
-            self._on_ribbon_changed(None, self.mouse_handler.dragged_ribbon)
 
     def add_random_ribbon(self, *args, **kwargs) -> None:
         """
@@ -205,8 +193,10 @@ class Application:
         """
         if old_ribbon:
             self.ribbon_manager.replace_ribbon(old_ribbon, new_ribbon)
+            self.renderer.remove_drawable(old_ribbon)
         else:
             self.ribbon_manager.add_ribbon(new_ribbon)
+        self.renderer.add_drawable(new_ribbon)
         self._update_boundary()
         self._update_topology()
 

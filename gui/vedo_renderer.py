@@ -1,6 +1,6 @@
 import vedo
 
-from core.constants import WINDOW_SIZE, WINDOW_TITLE
+from core.constants import WINDOW_SIZE, WINDOW_TITLE, TEXT_SIZE
 from core.managers.interfaces import IRenderer
 
 
@@ -13,27 +13,28 @@ class VedoRenderer(IRenderer):
         self._text_actors = {}   # для текста топологии
 
     def add_drawable(self, obj: 'IDrawable') -> None:
-        mesh = obj.get_mesh()
-        if mesh is not None:
-            self.plotter.add(mesh)
-        if hasattr(obj, 'get_points'):
-            for pt in obj.get_points():
-                self.plotter.add(pt)
-        if hasattr(obj, 'get_arcs'):
-            for arc in obj.get_arcs():
-                self.plotter.add(arc)
-        self.plotter.render()
+        if obj:
+            mesh = obj.get_mesh()
+            if mesh is not None:
+                self.plotter.add(mesh)
+            if hasattr(obj, 'get_points'):
+                for pt in obj.get_points():
+                    self.plotter.add(pt)
+            if hasattr(obj, 'get_arcs'):
+                for arc in obj.get_arcs():
+                    self.plotter.add(arc)
 
     def remove_drawable(self, obj: 'IDrawable') -> None:
-        mesh = obj.get_mesh()
-        if mesh is not None:
-            self.plotter.remove(mesh)
-        if hasattr(obj, 'get_points'):
-            for pt in obj.get_points():
-                self.plotter.remove(pt)
-        if hasattr(obj, 'get_arcs'):
-            for arc in obj.get_arcs():
-                self.plotter.remove(arc)
+        if obj:
+            mesh = obj.get_mesh()
+            if mesh is not None:
+                self.plotter.remove(mesh)
+            if hasattr(obj, 'get_points'):
+                for pt in obj.get_points():
+                    self.plotter.remove(pt)
+            if hasattr(obj, 'get_arcs'):
+                for arc in obj.get_arcs():
+                    self.plotter.remove(arc)
 
     def render(self) -> None:
         self.plotter.render()
@@ -56,20 +57,9 @@ class VedoRenderer(IRenderer):
     def bind_release(self, callback) -> None:
         self.plotter.add_callback("mouse button release", callback)
 
-    def add_button(self, func, text: str, pos: tuple, c: str, bc: str, size: int):
-        button = self.plotter.add_button(
-            func,
-            states=[text],
-            pos=pos,
-            c=c,
-            bc=bc,
-            size=size
-        )
-        return button
-
-    def add_text(self, text: str, position: str = "top-left", key: str = "default") -> None:
+    def add_text(self, text: str, position: str | tuple = "top-left", key: str = "default", size: float=TEXT_SIZE) -> None:
         if key in self._text_actors:
             self.plotter.remove(self._text_actors[key])
-        actor = vedo.Text2D(text, pos=position, font="Courier", s=1.2)
+        actor = vedo.Text2D(text, pos=position, font="Courier", s=size)
         self.plotter.add(actor)
         self._text_actors[key] = actor

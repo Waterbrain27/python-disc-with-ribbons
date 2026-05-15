@@ -97,9 +97,10 @@ class BoundaryGraph:
             while True:
                 visited.add(current)
                 candidates = [(n, t) for (n, t) in adj[current] if (n, t) != (prev, prev_type)]
-                next_v, edge_type = candidates[0]
-                cycle.append((current, next_v, edge_type))
-                prev, prev_type, current = current, edge_type, next_v
+                if candidates:
+                    next_v, edge_type = candidates[0]
+                    cycle.append((current, next_v, edge_type))
+                    prev, prev_type, current = current, edge_type, next_v
                 if current == start:
                     break
             cycles.append(cycle)

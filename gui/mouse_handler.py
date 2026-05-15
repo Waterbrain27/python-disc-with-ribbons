@@ -1,4 +1,5 @@
 from typing import Callable, List, Optional, Tuple
+import numpy as np
 
 from core.constants import DISK_RADIUS, DISK_CENTER, MIN_DELTA, MIN_WIDTH
 from core.drawable.disc import Disc
@@ -39,47 +40,41 @@ class MouseHandler(IInteractive):
         renderer.bind_right_click(self.on_right_click)
 
     def on_click(self, evt: object) -> None:
-        """Левый клик: начать перетаскивание конца ленточки."""
+        """Левый клик: начать перетаскивание конца ленточки или создать новую."""
         if self.dragged_end is not None or self.dragged_ribbon is not None or self.dragged_disk is not None:
             self._finish_drag()
             return
-        if self.dragged_end is None and self.dragged_ribbon is None:
-            actor = getattr(evt, 'actor', None)
-            if actor is None:
-                return
 
-            for ribbon in self.get_ribbons():
-                if ribbon:
-                    for idx, pt in enumerate(ribbon.get_points()):
-                        if pt == actor:
-                            self.dragged_ribbon = ribbon
-                            self.dragged_end = idx
-                            self._original_ribbon = ribbon
-                            return
+        actor = getattr(evt, 'actor', None)
+        if actor is None:
+            return
 
-        """Левый клик по диску: создание ленточки и переход в возможность перетаскивания ленточки."""
-        if self.dragged_disk is None:
-            actor = getattr(evt, 'actor', None)
-            if actor is None:
-                return
+        # Проверка: клик по точке существующей ленточки – начать перетаскивание
+        for ribbon in self.get_ribbons():
+            if ribbon:
+                for idx, pt in enumerate(ribbon.get_points()):
+                    if pt == actor:
+                        self.dragged_ribbon = ribbon
+                        self.dragged_end = idx
+                        self._original_ribbon = ribbon
+                        return
 
-            if not hasattr(evt, 'picked3d') or not is_on_disc(evt.picked3d):
-                return
+        # Клик по диску – создать новую ленточку и сразу начать перетаскивание
+        if not hasattr(evt, 'picked3d') or not is_on_disc(evt.picked3d):
+            return
 
-            angle = point_to_angle(evt.picked3d, self.center)
-            new_ribbon = Ribbon((angle - MIN_DELTA) % 360, angle, MIN_WIDTH)
+        angle = point_to_angle(evt.picked3d, self.center)
+        # Создаём ленточку шириной MIN_DELTA, один конец в точке клика
+        new_ribbon = Ribbon((angle - MIN_DELTA) % 360, angle, MIN_WIDTH)
 
-            for idx, pt in enumerate(new_ribbon.get_points()):
-                if pt != actor:
-                    self.dragged_ribbon = new_ribbon
-                    self.dragged_end = idx
-                    self._original_ribbon = new_ribbon
-                    return
+        # Добавляем ленточку в сцену и в менеджер
+        if self.on_ribbon_updated:
+            self.on_ribbon_updated(None, new_ribbon)
 
-            self.on_ribbon_updated(self._original_ribbon, new_ribbon)
-
-            self.new_add = True
-
+        self.dragged_ribbon = new_ribbon
+        self.dragged_end = 0
+        self._original_ribbon = new_ribbon
+        self.new_add = True
 
     def on_mouse_move(self, evt: object) -> None:
         """Движение мыши: обновлять положение перетаскиваемого конца."""
@@ -87,8 +82,7 @@ class MouseHandler(IInteractive):
             return
         if not hasattr(evt, 'picked3d') or evt.picked3d is None:
             return
-        if not is_on_disc(evt.picked3d):
-            return
+
         new_angle = point_to_angle(evt.picked3d, self.center)
         if self.dragged_end == 0:
             new_a1, new_a2 = new_angle, self.dragged_ribbon.end_angle
@@ -109,8 +103,9 @@ class MouseHandler(IInteractive):
         if self.on_ribbon_updated:
             self.on_ribbon_updated(self._original_ribbon, new_ribbon)
 
-        self._renderer.remove_drawable(self._original_ribbon)
-        self._renderer.add_drawable(new_ribbon)
+        if self._renderer and self._original_ribbon:
+            self._renderer.remove_drawable(self._original_ribbon)
+            self._renderer.add_drawable(new_ribbon)
 
         self.dragged_ribbon = new_ribbon
         self._original_ribbon = new_ribbon
@@ -122,7 +117,7 @@ class MouseHandler(IInteractive):
         actor = getattr(evt, 'actor', None)
         ribbons = self.get_ribbons()
         for ribbon in ribbons:
-            if ribbon.get_mesh() == actor:
+            if ribbon and ribbon.get_mesh() == actor:
                 new_ribbon = ribbon.clone_with_angles(ribbon.start_angle, ribbon.end_angle, 1 - ribbon.twist)
                 self._renderer.remove_drawable(ribbon)
                 self._renderer.add_drawable(new_ribbon)
@@ -136,3 +131,5 @@ class MouseHandler(IInteractive):
         self.dragged_end = None
         self._original_ribbon = None
         self.dragged_disk = None
+        self.dragged_disk = None
+        self.new_add = False

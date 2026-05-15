@@ -76,7 +76,7 @@ class MouseHandler(IInteractive):
         width = new_ribbon.width
 
         # Проверяем первый интервал (start, start+width)
-        if not self.ribbon_manager.is_interval_free(start, (start + width) % 360, extend=False, ignore=[]):
+        if not self.ribbon_manager.is_interval_free(start, (start + width) % 360, extend=True, ignore=[]):
             if self._renderer:
                 self._renderer.add_text(
                     "Intersection! Try another position.",
@@ -88,7 +88,7 @@ class MouseHandler(IInteractive):
             return
 
         # Проверяем второй интервал (end-width, end)
-        if not self.ribbon_manager.is_interval_free((end - width) % 360, end, extend=False, ignore=[]):
+        if not self.ribbon_manager.is_interval_free((end - width) % 360, end, extend=True, ignore=[]):
             if self._renderer:
                 self._renderer.add_text(
                     "Intersection! Try another position.",

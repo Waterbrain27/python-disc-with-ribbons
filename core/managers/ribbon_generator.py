@@ -3,7 +3,7 @@ import numpy as np
 from typing import Optional
 from core.math_machinery.geometry import canon_arc, rand_float, dist, form_free_room_list, rand_angle, angle_in_interval
 from core.managers.factory import ObjectFactory
-from core.constants import MAX_ATTEMPTS, MIN_DELTA, MIN_INTERVAL_LENGTH, DISK_RADIUS, DISK_THICKNESS
+from core.constants import MAX_ATTEMPTS, MIN_DELTA, MIN_INTERVAL_LENGTH, DISK_RADIUS, DISK_THICKNESS, MOVE_MARGIN
 
 
 class RibbonGenerator:
@@ -62,7 +62,7 @@ class RibbonGenerator:
                 else:
                     start_sector, end_sector = sector2, sector1
                 max_width = min((start_sector[1] - start) % 360, (end - end_sector[0]) % 360)
-                if max_width <= 1e-6:
+                if max_width <= MOVE_MARGIN * 2:
                     continue
                 width = rand_float(max_width * 0.4, max_width * 0.8)
                 twist = random.randint(0, 1)

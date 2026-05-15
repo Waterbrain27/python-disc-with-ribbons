@@ -100,3 +100,37 @@ class Topology(ITopologyCalculator, ABC):
         else:
             self.g = 0
             self.m = 2 - self.h - self.chi
+
+    def surface_type(self) -> str:
+        """
+        Возвращает строковое имя типа поверхности на основе вычисленных инвариантов.
+
+        Returns:
+            Название поверхности (например, "Disk", "Möbius strip", "Klein bottle with a hole", etc.)
+        """
+
+        if self.is_orientable:
+            if self.h == 1:
+                if self.g == 0:
+                    return "Disk"
+                elif self.g == 1:
+                    return "Torus with a hole (sphere with one handle and one hole)"
+                else:
+                    return f"Sphere with {self.g} handles and one hole"
+            elif self.h == 2:
+                if self.g == 0:
+                    return "Annulus (cylinder)"
+                else:
+                    return f"Sphere with {self.g} handles and two holes"
+            else:
+                return f"Sphere with {self.g} handles and {self.h} holes"
+        else:
+            if self.h == 1:
+                if self.m == 1:
+                    return "Möbius strip"
+                elif self.m == 2:
+                    return "Klein bottle with a hole (projective plane with a hole)"
+                else:
+                    return f"Sphere with {self.m} crosscaps and one hole"
+            else:
+                return f"Non-orientable surface with {self.h} boundaries and {self.m} crosscaps"

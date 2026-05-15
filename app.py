@@ -49,6 +49,7 @@ class Application:
         # Обработчик мыши
         self.mouse_handler = MouseHandler(
             get_ribbons_func=lambda: self.ribbon_manager.ribbons,
+            ribbon_manager=self.ribbon_manager,
             disc_radius=disc_radius
         )
         self.mouse_handler.on_ribbon_updated = self._on_ribbon_changed
@@ -115,6 +116,14 @@ class Application:
                 self.renderer.add_drawable(new_ribbon)
                 self._update_boundary()
                 self._update_topology()
+                self.renderer.remove_text("lucky")
+            else:
+                self.renderer.add_text(
+                    "Try again. You aren't lucky, or there are too many ribbons.",
+                    key="lucky",
+                    position="center",
+                    color="red"
+                )
         except Exception as e:
             print(f"Ошибка при добавлении ленточки: {e}")
         finally:
@@ -228,7 +237,8 @@ class Application:
             f"g = {self.topology_calc.g}, "
             f"h = {self.topology_calc.h}, "
             f"m = {self.topology_calc.m}, "
-            f"x = {self.topology_calc.chi}"
+            f"x = {self.topology_calc.chi}\n"
+            f"{self.topology_calc.surface_type()}"
         )
         self.renderer.add_text(text, position="top-left", key="topology")
 

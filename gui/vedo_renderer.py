@@ -1,6 +1,7 @@
 import vedo
+import threading
 
-from core.constants import WINDOW_SIZE, WINDOW_TITLE, TEXT_SIZE
+from core.constants import WINDOW_SIZE, WINDOW_TITLE, BASIC_TEXT_COLOR, TEXT_SIZE
 from core.managers.interfaces import IRenderer
 
 
@@ -9,8 +10,8 @@ class VedoRenderer(IRenderer):
 
     def __init__(self, title: str = WINDOW_TITLE, size: tuple = WINDOW_SIZE) -> None:
         self.plotter = vedo.Plotter(title=title, size=size)
-        self._drawables = []      # список добавленных IDrawable
-        self._text_actors = {}   # для текста топологии
+        self._drawables = []
+        self._text_actors = {}
 
     def add_drawable(self, obj: 'IDrawable') -> None:
         if obj:
@@ -57,9 +58,23 @@ class VedoRenderer(IRenderer):
     def bind_release(self, callback) -> None:
         self.plotter.add_callback("mouse button release", callback)
 
-    def add_text(self, text: str, position: str | tuple = "top-left", key: str = "default", size: float=TEXT_SIZE) -> None:
+    def add_text(
+        self,
+        text: str,
+        position: str | tuple = "top-left",
+        key: str = "default",
+        size: float = TEXT_SIZE,
+        color: str = BASIC_TEXT_COLOR
+    ) -> None:
         if key in self._text_actors:
             self.plotter.remove(self._text_actors[key])
         actor = vedo.Text2D(text, pos=position, font="Courier", s=size)
+        actor.c(color)
         self.plotter.add(actor)
         self._text_actors[key] = actor
+
+    def remove_text(self, key: str) -> None:
+        """Удалить текст по ключу."""
+        if key in self._text_actors:
+            self.plotter.remove(self._text_actors[key])
+            del self._text_actors[key]

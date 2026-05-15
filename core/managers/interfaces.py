@@ -60,6 +60,11 @@ class IRenderer(ABC):
         """Назначить обработчик отпускания кнопки мыши"""
         pass
 
+    def remove_text(self, key: str) -> None:
+        """Удалять предупреждающие тексты"""
+        pass
+
+
 class ITopologyCalculator(ABC):
     """Интерфейс для вычисления топологических инвариантов поверхности"""
     @abstractmethod

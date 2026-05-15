@@ -5,7 +5,8 @@ from core.constants import DISK_RADIUS, DISK_CENTER, MIN_DELTA, MIN_WIDTH
 from core.drawable.disc import Disc
 from core.drawable.ribbon import Ribbon
 from core.managers.interfaces import IInteractive, IRenderer
-from core.math_machinery.geometry import point_to_angle, bool_canon, is_on_disc
+from core.managers.ribbon_manager import RibbonManager
+from core.math_machinery.geometry import point_to_angle, bool_canon, is_on_disc, canon_arc
 
 
 class MouseHandler(IInteractive):
@@ -14,10 +15,12 @@ class MouseHandler(IInteractive):
     def __init__(
         self,
         get_ribbons_func: Callable[[], List['Ribbon']],
+        ribbon_manager: 'RibbonManager',
         disc_radius: float = DISK_RADIUS,
         disc_center: Tuple[float, float, float] = DISK_CENTER
     ) -> None:
         self.get_ribbons = get_ribbons_func
+        self.ribbon_manager = ribbon_manager
         self.is_interval_free = None
         self.radius = disc_radius
         self.center = disc_center
@@ -57,6 +60,7 @@ class MouseHandler(IInteractive):
                         self.dragged_ribbon = ribbon
                         self.dragged_end = idx
                         self._original_ribbon = ribbon
+                        self._renderer.remove_text("warning")
                         return
 
         # Клик по диску – создать новую ленточку и сразу начать перетаскивание
@@ -67,9 +71,39 @@ class MouseHandler(IInteractive):
         # Создаём ленточку шириной MIN_DELTA, один конец в точке клика
         new_ribbon = Ribbon((angle - MIN_DELTA) % 360, angle, MIN_WIDTH)
 
+        # Проверить, что оба интервала новой ленточки свободны
+        start, end, _ = canon_arc(new_ribbon.start_angle, new_ribbon.end_angle)
+        width = new_ribbon.width
+
+        # Проверяем первый интервал (start, start+width)
+        if not self.ribbon_manager.is_interval_free(start, (start + width) % 360, extend=False, ignore=[]):
+            if self._renderer:
+                self._renderer.add_text(
+                    "Intersection! Try another position.",
+                    key="warning",
+                    position="center",
+                    color="red"
+                )
+            self._finish_drag()
+            return
+
+        # Проверяем второй интервал (end-width, end)
+        if not self.ribbon_manager.is_interval_free((end - width) % 360, end, extend=False, ignore=[]):
+            if self._renderer:
+                self._renderer.add_text(
+                    "Intersection! Try another position.",
+                    key="warning",
+                    position="center",
+                    color="red"
+                )
+            self._finish_drag()
+            return
+
         # Добавляем ленточку в сцену и в менеджер
         if self.on_ribbon_updated:
             self.on_ribbon_updated(None, new_ribbon)
+            if self._renderer:
+                self._renderer.remove_text("warning")
 
         self.dragged_ribbon = new_ribbon
         self.dragged_end = 0

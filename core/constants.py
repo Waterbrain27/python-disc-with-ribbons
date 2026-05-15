@@ -37,6 +37,7 @@ WINDOW_SIZE = (1520, 790)
 BUTTON_FONT = "Arial"
 BUTTON_SIZE = 16
 TEXT_SIZE = 1
+BASIC_TEXT_COLOR = 'black'
 
 PALETTE = []
 for i in range(360):

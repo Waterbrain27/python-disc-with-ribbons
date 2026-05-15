@@ -90,6 +90,12 @@ class Application:
             self.remove_last_ribbon()
 
     def click(self, evt: Any) -> None:
+        """
+        Обработчик нажатия мыши.
+
+        Args:
+            evt: объект события vedo, содержащий поле keypress.
+        """
         actor = getattr(evt, 'actor', None)
         if actor is None:
             return

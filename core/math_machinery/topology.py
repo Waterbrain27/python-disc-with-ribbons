@@ -106,31 +106,48 @@ class Topology(ITopologyCalculator, ABC):
         Возвращает строковое имя типа поверхности на основе вычисленных инвариантов.
 
         Returns:
-            Название поверхности (например, "Disk", "Möbius strip", "Klein bottle with a hole", etc.)
+            Название поверхности (например, "Disk", "Pair of pants", "Möbius strip", etc.)
         """
+
+        def handle_str(g: int) -> str:
+            return "1 handle" if g == 1 else f"{g} handles"
+
+        def crosscap_str(m: int) -> str:
+            return "1 crosscap" if m == 1 else f"{m} crosscaps"
+
+        def hole_str(h: int) -> str:
+            return "1 hole" if h == 1 else f"{h} holes"
 
         if self.is_orientable:
             if self.h == 1:
                 if self.g == 0:
                     return "Disk"
                 elif self.g == 1:
-                    return "Torus with a hole (sphere with one handle and two hole)"
+                    return "Torus with a hole"
+                elif self.g == 2:
+                    return "Double torus (pretzel) with a hole"
                 else:
-                    return f"Sphere with {self.g} handles and one hole"
+                    return f"Sphere with {handle_str(self.g)} and 1 hole"
             elif self.h == 2:
                 if self.g == 0:
                     return "Annulus (cylinder)"
                 else:
-                    return f"Sphere with {self.g} handles and two holes"
+                    return f"Sphere with {handle_str(self.g)} and 2 holes"
+            elif self.h == 3 and self.g == 0:
+                return "Pair of pants (sphere with 3 holes)"
             else:
-                return f"Sphere with {self.g} handles and {self.h} holes"
+                if self.g == 0:
+                    return f"Sphere with {hole_str(self.h)}"
+                return f"Sphere with {handle_str(self.g)} and {hole_str(self.h)}"
         else:
             if self.h == 1:
                 if self.m == 1:
                     return "Möbius strip"
                 elif self.m == 2:
-                    return "Klein bottle with a hole (projective plane with a hole)"
+                    return "Klein bottle with a hole"
+                elif self.m == 3:
+                    return "Dyck's surface with a hole"
                 else:
-                    return f"Sphere with {self.m} crosscaps and one hole"
+                    return f"Sphere with {crosscap_str(self.m)} and 1 hole"
             else:
-                return f"Non-orientable surface with {self.h} boundaries and {self.m} crosscaps"
+                return f"Non-orientable surface with {hole_str(self.h)} and {crosscap_str(self.m)}"

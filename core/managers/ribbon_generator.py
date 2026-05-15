@@ -3,7 +3,8 @@ import numpy as np
 from typing import Optional
 from core.math_machinery.geometry import canon_arc, rand_float, dist, form_free_room_list, rand_angle, angle_in_interval
 from core.managers.factory import ObjectFactory
-from core.constants import MAX_ATTEMPTS, MIN_DELTA, MIN_INTERVAL_LENGTH, DISK_RADIUS, DISK_THICKNESS, MOVE_MARGIN
+from core.constants import MAX_ATTEMPTS, MIN_DELTA, MIN_INTERVAL_LENGTH, DISK_RADIUS, DISK_THICKNESS, MOVE_MARGIN, \
+    MIN_WIDTH
 
 
 class RibbonGenerator:
@@ -69,6 +70,11 @@ class RibbonGenerator:
                 ribbon = self.factory.create_ribbon(angle1, angle2, width, twist,
                                                     self.radius, self.thickness, True)
                 if ribbon is not None:
+                    ok = (ribbon_manager.is_interval_free(start, (start + width) % 360, extend=True)
+                          and
+                          ribbon_manager.is_interval_free((end - width) % 360, end, extend=True))
+                    if not ok:
+                        continue
                     print(f"Создана ленточка: углы {angle1:.1f}°–{angle2:.1f}°, ширина {width:.1f}°")
                     return ribbon
         else:
@@ -80,7 +86,7 @@ class RibbonGenerator:
                 angle1 = rand_angle(sector)
                 angle2 = rand_angle(sector)
                 start, end, delta = canon_arc(angle1, angle2)
-                if delta < MIN_DELTA:
+                if delta < MIN_WIDTH:
                     continue
                 width = rand_float(delta * 0.1, delta * 0.2)
                 twist = random.randint(0, 1)

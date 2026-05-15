@@ -1,7 +1,7 @@
 from typing import Callable, List, Optional, Tuple
 import numpy as np
 
-from core.constants import DISK_RADIUS, DISK_CENTER, MIN_DELTA, MIN_WIDTH
+from core.constants import DISK_RADIUS, DISK_CENTER, MIN_DELTA, MIN_WIDTH, MOVE_MARGIN
 from core.drawable.disc import Disc
 from core.drawable.ribbon import Ribbon
 from core.managers.interfaces import IInteractive, IRenderer
@@ -44,6 +44,7 @@ class MouseHandler(IInteractive):
 
     def on_click(self, evt: object) -> None:
         """Левый клик: начать перетаскивание конца ленточки или создать новую."""
+        self.clear_temporary_text(["warning", "lucky"])
         if self.dragged_end is not None or self.dragged_ribbon is not None or self.dragged_disk is not None:
             self._finish_drag()
             return
@@ -60,7 +61,6 @@ class MouseHandler(IInteractive):
                         self.dragged_ribbon = ribbon
                         self.dragged_end = idx
                         self._original_ribbon = ribbon
-                        self._renderer.remove_text("warning")
                         return
 
         # Клик по диску – создать новую ленточку и сразу начать перетаскивание
@@ -68,8 +68,9 @@ class MouseHandler(IInteractive):
             return
 
         angle = point_to_angle(evt.picked3d, self.center)
+        ribbon_width = max(MIN_WIDTH, int('0' + self._renderer.text_actors["width"].text()[21:]))
         # Создаём ленточку шириной MIN_DELTA, один конец в точке клика
-        new_ribbon = Ribbon((angle - MIN_DELTA) % 360, angle, MIN_WIDTH)
+        new_ribbon = Ribbon((angle - 2 * ribbon_width - MOVE_MARGIN) % 360, angle, ribbon_width)
 
         # Проверить, что оба интервала новой ленточки свободны
         start, end, _ = canon_arc(new_ribbon.start_angle, new_ribbon.end_angle)
@@ -102,8 +103,6 @@ class MouseHandler(IInteractive):
         # Добавляем ленточку в сцену и в менеджер
         if self.on_ribbon_updated:
             self.on_ribbon_updated(None, new_ribbon)
-            if self._renderer:
-                self._renderer.remove_text("warning")
 
         self.dragged_ribbon = new_ribbon
         self.dragged_end = 0
@@ -148,6 +147,7 @@ class MouseHandler(IInteractive):
 
     def on_right_click(self, evt: object) -> None:
         """Правый клик: переключить перекручивание ленточки."""
+        self.clear_temporary_text(["warning", "lucky"])
         actor = getattr(evt, 'actor', None)
         ribbons = self.get_ribbons()
         for ribbon in ribbons:
@@ -158,6 +158,13 @@ class MouseHandler(IInteractive):
                 if self.on_ribbon_updated:
                     self.on_ribbon_updated(ribbon, new_ribbon)
                 return
+
+    def clear_temporary_text(self, keys: List[str]) -> None:
+        """
+        Вспомогательная функция, удаляющая ряд текстов по переданным ключам
+        """
+        for key in keys:
+            self._renderer.remove_text(key)
 
     def _finish_drag(self) -> None:
         """Завершить перетаскивание."""

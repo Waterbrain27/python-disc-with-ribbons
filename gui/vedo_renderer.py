@@ -11,7 +11,7 @@ class VedoRenderer(IRenderer):
     def __init__(self, title: str = WINDOW_TITLE, size: tuple = WINDOW_SIZE) -> None:
         self.plotter = vedo.Plotter(title=title, size=size)
         self._drawables = []
-        self._text_actors = {}
+        self.text_actors = {}
 
     def add_drawable(self, obj: 'IDrawable') -> None:
         if obj:
@@ -66,15 +66,15 @@ class VedoRenderer(IRenderer):
         size: float = TEXT_SIZE,
         color: str = BASIC_TEXT_COLOR
     ) -> None:
-        if key in self._text_actors:
-            self.plotter.remove(self._text_actors[key])
+        if key in self.text_actors:
+            self.plotter.remove(self.text_actors[key])
         actor = vedo.Text2D(text, pos=position, font="Courier", s=size)
         actor.c(color)
         self.plotter.add(actor)
-        self._text_actors[key] = actor
+        self.text_actors[key] = actor
 
     def remove_text(self, key: str) -> None:
         """Удалить текст по ключу."""
-        if key in self._text_actors:
-            self.plotter.remove(self._text_actors[key])
-            del self._text_actors[key]
+        if key in self.text_actors:
+            self.plotter.remove(self.text_actors[key])
+            del self.text_actors[key]

@@ -37,6 +37,7 @@ class Application:
             renderer: экземпляр рендерера (если None, будет создан VedoRenderer).
             disc_radius: радиус диска.
         """
+        vedo.settings.enable_default_keyboard_callbacks = False
         self.renderer = renderer or VedoRenderer()
         self.disc_radius = disc_radius
         self.disc = Disc(radius=disc_radius)
@@ -64,6 +65,7 @@ class Application:
 
     def init(self) -> None:
         """Инициализирует сцену: добавляет диск, плоскость, привязывает обработчики."""
+        vedo.settings.enable_default_keyboard_callbacks = False
         self.renderer.add_drawable(self.disc)
         self.renderer.add_drawable(self.plane)
 
@@ -71,16 +73,16 @@ class Application:
         self.renderer.bind_key(self.on_key_press)
         self.renderer.add_text(
             "Space - add a random ribbon\n"
-            "z - return only the last random added ribbon\n"
+            "z - remove last added ribbon\n"
             "Click near the boundary of disc and drag - add a ribbon and adjust the location\n"
-            "Click on the red sphere and drag - adjust the location of the ribbon",
+            "Click on the red dot and drag - adjust the location of the ribbon",
             position="bottom-left",
             key="hint"
         )
         self.renderer.add_text(
-            "Made any action with mouse to update topology information",
-            position="top-right",
-            key="info"
+            "Custom ribbon width: ",
+            position=(0.0075, 0.650),
+            key="width"
         )
 
     def on_key_press(self, evt: Any) -> None:
@@ -90,10 +92,18 @@ class Application:
         Args:
             evt: объект события vedo, содержащий поле keypress.
         """
+        self.mouse_handler.clear_temporary_text(["warning", "lucky"])
         if evt.keypress == "space":
             self.add_random_ribbon()
         if evt.keypress == "z":
             self.remove_last_ribbon()
+        if evt.keypress == "BackSpace" and len(self.renderer.text_actors["width"].text()) > 21:
+            self.renderer.text_actors["width"].text(self.renderer.text_actors["width"].text()[:-1])
+        if evt.keypress.isdigit():
+            self.renderer.text_actors["width"].text(self.renderer.text_actors["width"].text() + evt.keypress)
+
+        self.renderer.render()
+
 
     def add_random_ribbon(self, *args, **kwargs) -> None:
         """
@@ -119,7 +129,7 @@ class Application:
                 self.renderer.remove_text("lucky")
             else:
                 self.renderer.add_text(
-                    "Try again. You aren't lucky, or there are too many ribbons.",
+                    "Try again. Either you are loser, or there are too many ribbons.",
                     key="lucky",
                     position="center",
                     color="red"
@@ -129,8 +139,13 @@ class Application:
         finally:
             self._adding_ribbon = False
 
-    def remove_last_ribbon(self):
-        last_ribbon = self.ribbon_manager.last_ribbon
+    def remove_last_ribbon(self) -> None:
+        """
+        Удаляет последнюю добавленную ленточку
+        """
+        if len(self.ribbon_manager.ribbons) == 0:
+            return
+        last_ribbon = self.ribbon_manager.ribbons[-1]
         if last_ribbon is not None:
             self.ribbon_manager.replace_ribbon(last_ribbon, None)
             self.renderer.remove_drawable(last_ribbon)

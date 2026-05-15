@@ -10,7 +10,6 @@ class RibbonManager:
     def __init__(self) -> None:
         self.ribbons: List['Ribbon'] = []          # все текущие ленточки
         self.occupied: List[tuple[tuple[float, float], 'Ribbon']] = []      # занятые угловые интервалы
-        self.last_ribbon: 'Ribbon' = None
 
     def add_ribbon(self, ribbon: 'Ribbon', index: int = None) -> None:
         """Добавить ленточку и обновить занятые интервалы."""
@@ -18,7 +17,6 @@ class RibbonManager:
             self.ribbons.append(ribbon)
         else:
             self.ribbons.insert(index, ribbon)
-        self.last_ribbon = ribbon
         self._recalculate_intervals()
 
     def replace_ribbon(self, old_ribbon: 'Ribbon', new_ribbon: 'Ribbon') -> None:
@@ -27,7 +25,6 @@ class RibbonManager:
             if new_ribbon is not None:
                 idx = self.ribbons.index(old_ribbon)
                 self.ribbons[idx] = new_ribbon
-                self.last_ribbon = new_ribbon
             else:
                 self.ribbons.remove(old_ribbon)
             self._recalculate_intervals()
